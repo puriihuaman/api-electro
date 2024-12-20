@@ -17,4 +17,24 @@ public class CategoryServiceImpl implements CategoryService {
   public List<CategoryDTO> getAllCategories() {
     return categoryDAO.getAllCategories();
   }
+
+	@Override
+	public CategoryDTO getCategoryById(String categoryId) {
+		return categoryDAO.getCategoryById(categoryId);
+	}
+
+	@Override
+	public CategoryDTO addCategory(CategoryDTO category) {
+		return categoryDAO.addCategory(category);
+	}
+
+	@Override
+	public CategoryDTO updateCategory(String categoryId, CategoryDTO category) {
+		return categoryDAO.updateCategory(categoryId, category);
+	}
+
+	@Override
+	public Integer deleteCategory(String categoryId) {
+		return categoryDAO.deleteCategory(categoryId);
+	}
 }
