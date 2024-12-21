@@ -23,8 +23,10 @@ public class ProductDAOImpl implements ProductDAO {
 	private ProductRepository productRepository;
 
 	@Override
-	public List<ProductDTO> getAllProducts() {
-		return productMapper.toProductDTOList(productRepository.getAllProducts());
+	public List<ProductDTO> getAllProducts(Pageable page) {
+		List<ProductModel> products = productRepository.findAll(page).getContent();
+
+		return productMapper.toProductDTOList(products);
 	}
 
 	@Override
@@ -49,6 +51,7 @@ public class ProductDAOImpl implements ProductDAO {
 			filters.containsKey("min_price") ? Double.parseDouble(filters.get("min_price").trim()) : null,
 			filters.containsKey("max_price") ? Double.parseDouble(filters.get("max_price").trim()) : null,
 			filters.containsKey("new_product") ? Integer.parseInt(filters.get("new_product").trim()) : null,
+			filters.containsKey("category_name") ? filters.get("category_name").trim() : null,
 			offset,
 			limit
 		);

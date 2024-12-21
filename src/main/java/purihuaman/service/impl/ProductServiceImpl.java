@@ -16,8 +16,8 @@ public class ProductServiceImpl implements ProductService {
 	private ProductDAO productDAO;
 
 	@Override
-	public List<ProductDTO> getAllProducts() {
-		return productDAO.getAllProducts();
+	public List<ProductDTO> getAllProducts(Pageable page) {
+		return productDAO.getAllProducts(page);
 	}
 
 	@Override

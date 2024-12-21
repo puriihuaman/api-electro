@@ -23,13 +23,14 @@ public interface ProductRepository extends JpaRepository<ProductModel, String> {
 
 	@Query(
 		nativeQuery = true,
-		value = "CALL get_products_by_filters(:name, :minPrice, :maxPrice, :newProduct, :offset, :limit)"
+		value = "CALL get_products_by_filters(:name, :minPrice, :maxPrice, :newProduct, :categoryName, :offset, :limit)"
 	)
 	List<ProductModel> filterProducts(
 		@Param("name") String productName,
 		@Param("minPrice") Double minPrice,
 		@Param("maxPrice") Double maxPrice,
 		@Param("newProduct") Integer newProduct,
+		@Param("categoryName") String categoryName,
 		@Param("offset") Short offset,
 		@Param("limit") Short limit
 	);

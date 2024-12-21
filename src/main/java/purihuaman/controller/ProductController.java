@@ -32,7 +32,7 @@ public class ProductController {
 		Pageable page = PageRequest.of(offset, limit);
 
 		products =
-			(keywords.isEmpty()) ? productService.getAllProducts() : productService.getProductsByFilters(keywords, page);
+			(keywords.isEmpty()) ? productService.getAllProducts(page) : productService.getProductsByFilters(keywords, page);
 
 		return new ResponseEntity<>(products, HttpStatus.OK);
 	}

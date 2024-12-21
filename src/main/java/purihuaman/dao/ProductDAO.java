@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ProductDAO {
-	List<ProductDTO> getAllProducts();
+	List<ProductDTO> getAllProducts(Pageable page);
 
 	ProductDTO getProductById(String productId);
 
