@@ -20,17 +20,18 @@ public class ProductModel {
 	private String productName;
 
 	@NotNull(message = "${field.null}")
-	@NotEmpty(message = "${field.empty}")
+	@PositiveOrZero(message = "${product.price}")
+	@Min(value = 0, message = "${product.min}")
 	@Column(name = "price", precision = 2)
 	private Double price;
 
 	@NotNull(message = "${field.null}")
-	@NotEmpty(message = "${field.empty}")
+	@PositiveOrZero(message = "${product.price}")
+	@Min(value = 0, message = "${product.min}")
 	@Column(name = "old_price", precision = 2)
 	private Double oldPrice;
 
 	@NotNull(message = "${field.null}")
-	@NotEmpty(message = "${field.empty}")
 	@Min(value = 0, message = "${product.min}")
 	@Column(name = "new_product")
 	private Integer newProduct;
