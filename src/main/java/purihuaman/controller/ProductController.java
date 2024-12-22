@@ -1,5 +1,6 @@
 package purihuaman.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import purihuaman.dto.ProductDTO;
+import purihuaman.exception.ApiRequestException;
 import purihuaman.service.ProductService;
 
 import java.util.List;
@@ -38,13 +40,24 @@ public class ProductController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") String productId) {
+	public ResponseEntity<?> getProductById(@Valid @PathVariable("id") String productId) {
+		validateId(productId);
+
 		ProductDTO product = productService.getProductById(productId);
+
+		if (product == null) {
+			throw new ApiRequestException(
+				true,
+				"Product not found",
+				String.format("Product with id '%s' does not exist", productId),
+				HttpStatus.NOT_FOUND
+			);
+		}
 		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO product) {
+	public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO product) {
 		ProductDTO savedProduct = productService.addProduct(product);
 		return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
 	}
@@ -52,14 +65,24 @@ public class ProductController {
 	@PutMapping("/{id}")
 	public ResponseEntity<ProductDTO> updateProduct(@PathVariable("id") String productId, @RequestBody ProductDTO product)
 	{
+		validateId(productId);
+
 		ProductDTO updatedProduct = productService.updateProduct(productId, product);
 		return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteProduct(@PathVariable("id") String productId) {
+		validateId(productId);
+
 		Integer isDeleted = productService.deleteProduct(productId);
 		if (isDeleted == 1) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private void validateId(String id) {
+		if (id == null || id.length() != 36) {
+			throw new ApiRequestException(true, "Invalid ID", "The ID must be a String", HttpStatus.BAD_REQUEST);
+		}
 	}
 }
