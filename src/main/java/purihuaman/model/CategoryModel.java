@@ -20,6 +20,6 @@ public class CategoryModel {
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
 	@Pattern(regexp = "^[a-zA-Z-áéíóúÁÉÍÓÚñÑ ]*$", message = "${field.category.name}")
-	@Column(name = "category_name", nullable = false, length = 30)
+	@Column(name = "category_name", nullable = false, length = 30, unique = true)
 	private String categoryName;
 }
