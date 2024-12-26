@@ -47,11 +47,9 @@ public class CategoryController {
 		}
 
 		HTTP_STATUS = HttpStatus.OK;
-		ResponseEntity<ApiResponse>
-			response =
-			ApiResponseHandler.handleApiResponse("Category successfully obtained", category, HTTP_STATUS);
+		API_RESPONSE = ApiResponseHandler.handleApiResponse("Category successfully obtained", category, HTTP_STATUS);
 
-		return new ResponseEntity<>(response.getBody(), HTTP_STATUS);
+		return new ResponseEntity<>(API_RESPONSE.getBody(), HTTP_STATUS);
 	}
 
 	@PostMapping
