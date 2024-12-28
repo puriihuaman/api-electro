@@ -15,5 +15,4 @@ public class ApiException {
 	private final String description;
 	private final Integer statusCode;
 	private final ZonedDateTime timestamp;
-	// private final Throwable throwable;
 }

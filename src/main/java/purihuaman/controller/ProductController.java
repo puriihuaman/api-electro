@@ -31,7 +31,6 @@ public class ProductController {
 	)
 	{
 		List<ProductDTO> products;
-		HTTP_STATUS = HttpStatus.OK;
 		short offset = keywords.containsKey("offset") ? Short.parseShort(keywords.get("offset")) : 0;
 		short limit = keywords.containsKey("limit") ? Short.parseShort(keywords.get("limit")) : 10;
 
@@ -39,6 +38,7 @@ public class ProductController {
 
 		products =
 			(keywords.isEmpty()) ? productService.getAllProducts(page) : productService.getProductsByFilters(keywords, page);
+		HTTP_STATUS = HttpStatus.OK;
 
 		API_RESPONSE = ApiResponseHandler.handleApiResponse("Products successfully obtained", products, HTTP_STATUS);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), HTTP_STATUS);

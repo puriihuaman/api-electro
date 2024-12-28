@@ -1,15 +1,12 @@
 package purihuaman.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "email"})})
 public class UserModel {
 	@Id
 	@Column(name = "user_id", length = 40)
@@ -32,20 +29,18 @@ public class UserModel {
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
 	@Email(message = "${user.email}")
-	@Column(name = "email", length = 50, nullable = false)
+	@Column(name = "email", length = 50, nullable = false, unique = true)
 	private String email;
 
-	@NotNull(message = "${field.null}")
-	@NotEmpty(message = "${field.empty}")
-	@Column(name = "username", length = 15, nullable = false)
+	@Column(name = "username", length = 15, nullable = false, unique = true)
 	private String username;
 
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
-	@Pattern(
-		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
-		message = "${user.pattern.password}"
-	)
 	@Column(name = "password", length = 100, nullable = false)
 	private String password;
+	//	@Pattern(
+	//		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
+	//		message = "${user.pattern.password}"
+	//	)
 }
