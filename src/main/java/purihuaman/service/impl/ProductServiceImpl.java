@@ -1,6 +1,6 @@
 package purihuaman.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import purihuaman.dao.ProductDAO;
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-	@Autowired
-	private ProductDAO productDAO;
+	private final ProductDAO productDAO;
 
 	@Override
 	public List<ProductDTO> getAllProducts(Pageable page) {

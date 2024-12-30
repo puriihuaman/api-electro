@@ -1,13 +1,13 @@
 package purihuaman.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import purihuaman.dto.UserDTO;
-import purihuaman.exception.ApiRequestException;
+import purihuaman.enums.APIError;
+import purihuaman.exception.APIRequestException;
 import purihuaman.service.UserService;
 
 @Service
@@ -21,14 +21,9 @@ public class SecurityService {
 		try {
 			authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 		} catch (BadCredentialsException ex) {
-			throw new ApiRequestException(
-				true,
-				"Invalid credentials",
-				"Incorrect username or password. Try again with correct credentials.",
-				HttpStatus.UNAUTHORIZED
-			);
+			throw new APIRequestException(APIError.UNAUTHORIZED_ACCESS);
 		} catch (Exception ex) {
-			throw new ApiRequestException(true, "An occurred error", ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 
 		UserDTO userFound = userService.getUserByUsername(user.getUsername());

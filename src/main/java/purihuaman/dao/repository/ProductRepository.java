@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import purihuaman.model.ProductModel;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<ProductModel, String> {
 
@@ -13,7 +14,7 @@ public interface ProductRepository extends JpaRepository<ProductModel, String> {
 	List<ProductModel> getAllProducts();
 
 	@Query(nativeQuery = true, value = "CALL get_product_by_id(:id);")
-	ProductModel getProductById(@Param("id") String productId);
+	Optional<ProductModel> getProductById(@Param("id") String productId);
 
 	@Query(nativeQuery = true, value = "CALL delete_product(:id)")
 	void deleteProductById(@Param("id") String productId);

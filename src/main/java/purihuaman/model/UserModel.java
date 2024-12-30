@@ -38,9 +38,9 @@ public class UserModel {
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
 	@Column(name = "password", length = 100, nullable = false)
+	@Pattern(
+		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
+		message = "${user.pattern.password}"
+	)
 	private String password;
-	//	@Pattern(
-	//		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
-	//		message = "${user.pattern.password}"
-	//	)
 }

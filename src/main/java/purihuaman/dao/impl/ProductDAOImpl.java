@@ -1,77 +1,69 @@
 package purihuaman.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import purihuaman.dao.ProductDAO;
 import purihuaman.dao.repository.ProductRepository;
 import purihuaman.dto.ProductDTO;
-import purihuaman.exception.ApiRequestException;
+import purihuaman.enums.APIError;
+import purihuaman.exception.APIRequestException;
 import purihuaman.mapper.ProductMapper;
 import purihuaman.model.ProductModel;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@RequiredArgsConstructor
 public class ProductDAOImpl implements ProductDAO {
-	@Autowired
-	private ProductMapper productMapper;
-
-	@Autowired
-	private ProductRepository productRepository;
+	private final ProductMapper productMapper;
+	private final ProductRepository productRepository;
 
 	@Override
-	public List<ProductDTO> getAllProducts(Pageable page) {
+	public List<ProductDTO> getAllProducts(final Pageable page) {
 		try {
 			List<ProductModel> products = productRepository.findAll(page).getContent();
 			return productMapper.toProductDTOList(products);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public ProductDTO getProductById(String productId) {
+	public ProductDTO getProductById(final String productId) {
 		try {
-			Optional<ProductModel> result = Optional.ofNullable(productRepository.getProductById(productId));
-			if (result.isEmpty()) {
-				throw new ApiRequestException(
-					true,
-					"Product not found",
-					String.format("Product with id %s not found", productId),
-					HttpStatus.NOT_FOUND
-				);
-			}
-			return result.map((productModel) -> productMapper.toProductDTO(productModel)).orElse(null);
+			ProductModel
+				product =
+				productRepository
+					.getProductById(productId)
+					.orElseThrow(() -> new APIRequestException(APIError.RECORD_NOT_FOUND));
+
+			return productMapper.toProductDTO(product);
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"An error occurred",
-				"An error occurred internally. Please try again.",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public List<ProductDTO> searchProductByName(String productName) {
+	public List<ProductDTO> searchProductByName(final String productName) {
 		List<ProductModel> products = productRepository.searchProductByName(productName);
 		return productMapper.toProductDTOList(products);
 	}
 
 	@Override
-	public List<ProductDTO> filterProducts(Map<String, String> filters, Pageable page) {
+	public List<ProductDTO> filterProducts(final Map<String, String> filters, final Pageable page) {
 		try {
 			Short offset = (short) page.getOffset();
 			Short limit = (short) page.getPageSize();
@@ -88,17 +80,14 @@ public class ProductDAOImpl implements ProductDAO {
 
 			return productMapper.toProductDTOList(filteredProducts);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public ProductDTO addProduct(ProductDTO product) {
+	public ProductDTO addProduct(final @Valid ProductDTO product) {
 		try {
 			ProductModel productModel = productMapper.toProductModel(product);
 			productModel.setProductId(UUID.randomUUID().toString());
@@ -107,22 +96,24 @@ public class ProductDAOImpl implements ProductDAO {
 
 			return productMapper.toProductDTO(savedProduct);
 		} catch (DataIntegrityViolationException ex) {
-			throw new ApiRequestException(true, "Duplicate key", "The record name is already in use", HttpStatus.CONFLICT);
+			Throwable cause = ex.getCause();
+			Throwable rootCause = cause.getCause();
+			if (rootCause instanceof ConstraintViolationException || rootCause instanceof DataIntegrityViolationException)
+				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
+			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public ProductDTO updateProduct(String productId, ProductDTO product) {
-		ProductDTO productExisting = getProductById(productId);
+	public ProductDTO updateProduct(final String productId, final @Valid ProductDTO product) {
 
 		try {
+			ProductDTO productExisting = getProductById(productId);
+
 			productExisting.setProductName(product.getProductName());
 			productExisting.setPrice(product.getPrice());
 			productExisting.setOldPrice(product.getOldPrice());
@@ -133,50 +124,42 @@ public class ProductDAOImpl implements ProductDAO {
 			ProductModel updatedProduct = productRepository.save(productMapper.toProductModel(productExisting));
 
 			return productMapper.toProductDTO(updatedProduct);
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataIntegrityViolationException ex) {
-			throw new ApiRequestException(true, "Duplicate key", "The record name is already in use", HttpStatus.CONFLICT);
+			Throwable cause = ex.getCause();
+			Throwable rootCause = cause.getCause();
+			if (cause instanceof ConstraintViolationException || rootCause instanceof DataIntegrityViolationException)
+				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
+			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public Integer deleteProduct(String productId) {
+	public Integer deleteProduct(final String productId) {
 		try {
 			ProductDTO product = getProductById(productId);
-
-			if (product == null) {
-				throw new ApiRequestException(
-					true,
-					"Product not found",
-					String.format("Product with id %s not found", productId),
-					HttpStatus.NOT_FOUND
-				);
-			}
 
 			ProductModel productModel = productMapper.toProductModel(product);
 			productRepository.deleteProductById(productModel.getProductId());
 
 			return 1;
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataIntegrityViolationException ex) {
-			throw new ApiRequestException(
-				true,
-				"Cannot delete record",
-				"The record is linked to the other record(s) and cannot be deleted",
-				HttpStatus.CONFLICT
-			);
+			Throwable cause = ex.getCause();
+			Throwable rootCause = cause.getCause();
+			if (cause instanceof ConstraintViolationException || rootCause instanceof DataIntegrityViolationException)
+				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
+			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Delete error",
-				"Database error occurred while deleting the product",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

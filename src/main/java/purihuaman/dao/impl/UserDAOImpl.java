@@ -1,125 +1,100 @@
 package purihuaman.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import purihuaman.dao.UserDAO;
 import purihuaman.dao.repository.UserRepository;
 import purihuaman.dto.UserDTO;
-import purihuaman.exception.ApiRequestException;
+import purihuaman.enums.APIError;
+import purihuaman.exception.APIRequestException;
 import purihuaman.mapper.UserMapper;
 import purihuaman.model.UserModel;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@RequiredArgsConstructor
 public class UserDAOImpl implements UserDAO {
-	@Autowired
-	private UserMapper userMapper;
-
-	@Autowired
-	private UserRepository userRepository;
+	private final UserMapper userMapper;
+	private final UserRepository userRepository;
 
 	private final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
 
 	@Override
-	public List<UserDTO> getAllUsers(Pageable page) {
+	public List<UserDTO> getAllUsers(final Pageable page) {
 		try {
 			List<UserModel> users = userRepository.findAll(page).getContent();
 			return userMapper.toUserDTOList(users);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public UserDTO getUserById(String userId) {
+	public UserDTO getUserById(final String userId) {
 		try {
-			Optional<UserModel> result = userRepository.findById(userId);
-			if (result.isEmpty()) {
-				throw new ApiRequestException(
-					true,
-					"User not found",
-					String.format("User with id %s not found", userId),
-					HttpStatus.NOT_FOUND
-				);
-			}
+			UserModel
+				user =
+				userRepository.findById(userId).orElseThrow(() -> new APIRequestException(APIError.ENDPOINT_NOT_FOUND));
 
-			return userMapper.toUserDTO(result.get());
+			return userMapper.toUserDTO(user);
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"An error occurred",
-				"An error occurred internally. Please try again.",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public UserDTO authentication(String username, String password) {
+	public UserDTO authentication(final String username, final String password) {
 		try {
 			UserModel
 				userFound =
 				userRepository
 					.findByUsernameAndPassword(username, password)
-					.orElseThrow(() -> new ApiRequestException(
-						true,
-						"User not found",
-						String.format("User with username '%s' not found", username),
-						HttpStatus.NOT_FOUND
-					));
+					.orElseThrow(() -> new APIRequestException(APIError.ENDPOINT_NOT_FOUND));
 
 			return userMapper.toUserDTO(userFound);
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"An error occurred",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public UserDTO getUserByUsername(String username) {
+	public UserDTO getUserByUsername(final String username) {
 		try {
 			UserModel
 				userFound =
-				userRepository
-					.findByUsername(username)
-					.orElseThrow(() -> new ApiRequestException(
-						true,
-						"User not found",
-						String.format("User with username '%s' not found", username),
-						HttpStatus.NOT_FOUND
-					));
+				userRepository.findByUsername(username).orElseThrow(() -> new APIRequestException(APIError.ENDPOINT_NOT_FOUND));
 
 			return userMapper.toUserDTO(userFound);
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"An error occurred",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public List<UserDTO> filterUsers(Map<String, String> filters, Pageable page) {
+	public List<UserDTO> filterUsers(final Map<String, String> filters, final Pageable page) {
 		try {
 			Short offset = (short) page.getOffset();
 			Short limit = (short) page.getPageSize();
@@ -135,19 +110,17 @@ public class UserDAOImpl implements UserDAO {
 
 			return userMapper.toUserDTOList(filteredUsers);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public UserDTO addUser(UserDTO user) {
+	public UserDTO addUser(final @Valid UserDTO user) {
 		try {
 			UserModel userModel = userMapper.toUserModel(user);
+
 			userModel.setUserId(UUID.randomUUID().toString());
 			userModel.setPassword(ENCODER.encode(user.getPassword()));
 
@@ -155,85 +128,68 @@ public class UserDAOImpl implements UserDAO {
 
 			return userMapper.toUserDTO(savedUser);
 		} catch (DataIntegrityViolationException ex) {
-			throw new ApiRequestException(
-				true,
-				"Duplicate key",
-				"The record username is already in use",
-				HttpStatus.CONFLICT
-			);
+			Throwable cause = ex.getCause();
+			Throwable rootCause = cause.getCause();
+			if (cause instanceof ConstraintViolationException || rootCause instanceof ConstraintViolationException)
+				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
+			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public UserDTO updateUser(String userId, UserDTO user) {
-		UserDTO userExisting = getUserById(userId);
-
+	public UserDTO updateUser(final String userId, final @Valid UserDTO user) {
 		try {
+			UserDTO userExisting = getUserById(userId);
+
 			userExisting.setFirstName(user.getFirstName());
 			userExisting.setLastName(user.getLastName());
 			userExisting.setEmail(user.getEmail());
-			userExisting.setPassword(user.getPassword());
+			userExisting.setPassword(ENCODER.encode(user.getPassword()));
 			userExisting.setUsername(user.getUsername());
 
 			UserModel updatedUser = userRepository.save(userMapper.toUserModel(userExisting));
 
 			return userMapper.toUserDTO(updatedUser);
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataIntegrityViolationException ex) {
-			throw new ApiRequestException(
-				true,
-				"Duplicate key",
-				"The record username is already in use",
-				HttpStatus.CONFLICT
-			);
+			Throwable cause = ex.getCause();
+			Throwable rootCause = cause.getCause();
+			if (cause instanceof ConstraintViolationException || rootCause instanceof ConstraintViolationException)
+				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
+			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Database error",
-				"An error occurred while accessing the database",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public Integer deleteUser(String userId) {
+	public Integer deleteUser(final String userId) {
 		try {
 			UserDTO user = getUserById(userId);
-
-			if (user == null) {
-				throw new ApiRequestException(
-					true,
-					"User not found",
-					String.format("User with id '%s' not found", userId),
-					HttpStatus.NOT_FOUND
-				);
-			}
 
 			UserModel userModel = userMapper.toUserModel(user);
 			userRepository.deleteById(userModel.getUserId());
 
 			return 1;
+		} catch (APIRequestException ex) {
+			throw ex;
 		} catch (DataIntegrityViolationException ex) {
-			throw new ApiRequestException(
-				true,
-				"Cannot delete record",
-				"The record is linked to the other record(s) and cannot be deleted",
-				HttpStatus.CONFLICT
-			);
+			Throwable cause = ex.getCause();
+			Throwable rootCause = cause.getCause();
+			if (cause instanceof DataIntegrityViolationException || rootCause instanceof DataAccessException)
+				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
+			else throw new APIRequestException(APIError.RESOURCE_CONFLICT);
 		} catch (DataAccessException ex) {
-			throw new ApiRequestException(
-				true,
-				"Delete error",
-				"Database error occurred while deleting the user",
-				HttpStatus.INTERNAL_SERVER_ERROR
-			);
+			throw new APIRequestException(APIError.DATABASE_ERROR);
+		} catch (Exception ex) {
+			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

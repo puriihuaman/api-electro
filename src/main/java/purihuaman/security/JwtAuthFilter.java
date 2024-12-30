@@ -66,13 +66,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		final HttpServletRequest request,
 		final HttpServletResponse response,
 		final FilterChain chain
-	) throws IOException, ServletException
+	) throws ServletException, IOException
 	{
 		final String AUTH_HEADER = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if (AUTH_HEADER == null || !AUTH_HEADER.startsWith("Bearer ")) {
-			chain.doFilter(request, response);
-			return null;
+			 chain.doFilter(request, response);
+
+			 return null;
 		}
 
 		return AUTH_HEADER.replace("Bearer ", "");
