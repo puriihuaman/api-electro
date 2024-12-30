@@ -7,11 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import purihuaman.dto.ProductDTO;
+import purihuaman.dto.UserDTO;
 import purihuaman.enums.APIError;
 import purihuaman.enums.APISuccess;
 import purihuaman.exception.APIRequestException;
-import purihuaman.service.ProductService;
+import purihuaman.service.UserService;
 import purihuaman.util.APIResponse;
 import purihuaman.util.APIResponseHandler;
 
@@ -20,70 +20,68 @@ import java.util.Map;
 
 @Validated
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class ProductController {
+public class UserController {
 	private ResponseEntity<APIResponse> API_RESPONSE;
 
-	private final ProductService productService;
+	private final UserService userService;
 
 	@GetMapping
-	public ResponseEntity<APIResponse> getAllProducts(
+	public ResponseEntity<APIResponse> getAllUsers(
 		final @RequestParam Map<String, String> keywords
 	)
 	{
-		List<ProductDTO> products;
+		List<UserDTO> users;
 		short offset = keywords.containsKey("offset") ? Short.parseShort(keywords.get("offset")) : 0;
 		short limit = keywords.containsKey("limit") ? Short.parseShort(keywords.get("limit")) : 10;
 
 		Pageable page = PageRequest.of(offset, limit);
 
-		products =
-			(keywords.isEmpty()) ? productService.getAllProducts(page) : productService.getProductsByFilters(keywords, page);
+		users = (keywords.isEmpty()) ? userService.getAllUsers(page) : userService.filterUsers(keywords, page);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, products);
+		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, users);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<APIResponse> getProductById(final @Valid @PathVariable("id") String productId) {
-		validateId(productId);
+	public ResponseEntity<APIResponse> getUserById(final @PathVariable("id") String userId) {
+		validateId(userId);
 
-		ProductDTO product = productService.getProductById(productId);
+		UserDTO user = userService.getUserById(userId);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, product);
-
+		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, user);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
 	@PostMapping
-	public ResponseEntity<APIResponse> addProduct(final @Valid @RequestBody ProductDTO product) {
-		ProductDTO savedProduct = productService.addProduct(product);
+	public ResponseEntity<APIResponse> addUser(final @Valid @RequestBody UserDTO user) {
+		UserDTO savedUser = userService.addUser(user);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, savedProduct);
-
+		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, savedUser);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<APIResponse> updateProduct(
-		final @PathVariable("id") String productId,
-		final @Valid @RequestBody ProductDTO product
+	public ResponseEntity<APIResponse> updateUser(
+		final @PathVariable("id") String userId,
+		final @Valid @RequestBody UserDTO user
 	)
 	{
-		validateId(productId);
+		validateId(userId);
 
-		ProductDTO updatedProduct = productService.updateProduct(productId, product);
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedProduct);
+		UserDTO updatedUser = userService.updateUser(userId, user);
 
+		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedUser);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<APIResponse> deleteProduct(final @PathVariable("id") String productId) {
-		validateId(productId);
+	public ResponseEntity<APIResponse> deleteUser(final @PathVariable("id") String userId) {
+		validateId(userId);
 
-		productService.deleteProduct(productId);
+		userService.deleteUser(userId);
+
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_DELETED_SUCCESSFULLY, null);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_DELETED_SUCCESSFULLY.getStatus());
 	}

@@ -1,6 +1,7 @@
 package purihuaman.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -41,6 +42,7 @@ public class ProductModel {
 	@Column(name = "photo", length = 50)
 	private String photo;
 
+	@Valid
 	@OneToOne
 	@JoinColumn(name = "category_id", referencedColumnName = "category_id")
 	private CategoryModel category;
