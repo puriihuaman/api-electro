@@ -21,7 +21,7 @@ public class AppConfig {
 
 	@Bean
 	public UserDetailsService userDetailsService() {
-		return username -> {
+		return (username) -> {
 			final UserDTO userFound = userService.getUserByUsername(username);
 
 			return User.builder().username(userFound.getUsername()).password(userFound.getPassword()).build();
