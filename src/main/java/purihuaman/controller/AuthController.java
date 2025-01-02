@@ -17,7 +17,7 @@ public class AuthController {
 	private final SecurityService securityService;
 
 	@PostMapping("/login")
-	public ResponseEntity<TokenResponse> authenticate(@RequestBody final UserDTO user) {
+	public ResponseEntity<TokenResponse> authenticate(final @RequestBody UserDTO user) {
 		final TokenResponse token = securityService.login(user);
 		return ResponseEntity.ok(token);
 	}

@@ -12,6 +12,11 @@ public enum APIError {
 		"Invalid request data",
 		"The provided data contains invalid values or formats."
 	),
+	INVALID_CREDENTIALS(
+		HttpStatus.BAD_REQUEST,
+		"Invalid Credentials",
+		"Incorrect username or password. Please try again with the correct credentials."
+	),
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad Request", "The request is invalid."),
 	BAD_FORMAT(HttpStatus.BAD_REQUEST, "Invalid format", "The message does not have a valid format."),
 	RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Record not found", "The requested resource could not be found."),
@@ -52,7 +57,11 @@ public enum APIError {
 		"Unique Constraint Violation",
 		"A unique constraint violation occurred."
 	),
-	RESOURCE_ASSOCIATED_EXCEPTION(HttpStatus.CONFLICT, "Associated Resource Violation","Resource is associated with other resources and cannot be deleted."),
+	RESOURCE_ASSOCIATED_EXCEPTION(
+		HttpStatus.CONFLICT,
+		"Associated Resource Violation",
+		"Resource is associated with other resources and cannot be deleted."
+	),
 	DATABASE_ERROR(
 		HttpStatus.INTERNAL_SERVER_ERROR,
 		"Database Error",

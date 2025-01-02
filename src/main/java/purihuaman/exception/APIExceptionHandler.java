@@ -32,17 +32,17 @@ public class APIExceptionHandler {
 		);
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<APIExceptionDTO> handleAllExceptions(Exception ex) {
-		return new ResponseEntity<>(
-			new APIExceptionDTO(
-				APIError.INTERNAL_SERVER_ERROR.getMessage(),
-				APIError.INTERNAL_SERVER_ERROR.getDescription(),
-				APIError.INTERNAL_SERVER_ERROR.getStatus().value(),
-				null,
-				ZonedDateTime.now().toLocalDateTime()
-			), APIError.INTERNAL_SERVER_ERROR.getStatus()
+	@ExceptionHandler(APIRequestException.class)
+	public ResponseEntity<APIExceptionDTO> handleApiRequestException(final APIRequestException ex) {
+		APIExceptionDTO apiException = new APIExceptionDTO(
+			ex.getMessage(),
+			ex.getDescription(),
+			ex.getStatusCode().value(),
+			ex.getReasons(),
+			ZonedDateTime.now(ZoneId.of("Z")).toLocalDateTime()
 		);
+
+		return new ResponseEntity<>(apiException, ex.getStatusCode());
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
@@ -58,18 +58,16 @@ public class APIExceptionHandler {
 		);
 	}
 
-	@ExceptionHandler(APIRequestException.class)
-	public ResponseEntity<APIExceptionDTO> handleApiRequestException(final APIRequestException ex) {
-		// 1. Create payload containing exception details
-		APIExceptionDTO apiException = new APIExceptionDTO(
-			ex.getMessage(),
-			ex.getDescription(),
-			ex.getStatusCode().value(),
-			ex.getReasons(),
-			ZonedDateTime.now(ZoneId.of("Z")).toLocalDateTime()
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<APIExceptionDTO> handleAllExceptions(Exception ex) {
+		return new ResponseEntity<>(
+			new APIExceptionDTO(
+				APIError.INTERNAL_SERVER_ERROR.getMessage(),
+				APIError.INTERNAL_SERVER_ERROR.getDescription(),
+				APIError.INTERNAL_SERVER_ERROR.getStatus().value(),
+				null,
+				ZonedDateTime.now().toLocalDateTime()
+			), APIError.INTERNAL_SERVER_ERROR.getStatus()
 		);
-
-		// 2. Return response entity
-		return new ResponseEntity<>(apiException, ex.getStatusCode());
 	}
 }
