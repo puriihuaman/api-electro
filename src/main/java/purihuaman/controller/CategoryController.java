@@ -14,6 +14,10 @@ import purihuaman.util.APIResponse;
 import purihuaman.util.APIResponseHandler;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Validated
 @RestController
@@ -28,6 +32,11 @@ public class CategoryController {
 	public ResponseEntity<Object> getAllCategories() {
 		List<CategoryDTO> categories = categoryService.getAllCategories();
 
+		for (CategoryDTO category : categories) {
+			category.add(linkTo(methodOn(CategoryController.class).getCategoryById(category.getCategoryId())).withSelfRel());
+			category.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
+		}
+
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, categories);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
@@ -38,6 +47,13 @@ public class CategoryController {
 
 		CategoryDTO category = categoryService.getCategoryById(categoryId);
 
+		category.add(linkTo(methodOn(CategoryController.class).getCategoryById(categoryId)).withSelfRel());
+		category.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
+		category.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of(
+			"category_name",
+			category.getCategoryName()
+		))).withRel("products"));
+
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, category);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
@@ -46,9 +62,11 @@ public class CategoryController {
 	public ResponseEntity<Object> addCategory(final @Valid @RequestBody CategoryDTO category) {
 		CategoryDTO createdCategory = categoryService.addCategory(category);
 
+		createdCategory.add(linkTo(methodOn(CategoryController.class).getCategoryById(createdCategory.getCategoryId())).withSelfRel());
+		createdCategory.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
+
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, createdCategory);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
-
 	}
 
 	@PutMapping("/{id}")
@@ -59,6 +77,9 @@ public class CategoryController {
 	{
 		validateId(categoryId);
 		CategoryDTO updatedCategory = categoryService.updateCategory(categoryId, category);
+
+		updatedCategory.add(linkTo(methodOn(CategoryController.class).getCategoryById(updatedCategory.getCategoryId())).withSelfRel());
+		updatedCategory.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
 
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedCategory);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());

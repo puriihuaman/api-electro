@@ -42,30 +42,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 			final String TOKEN = getTokenFromRequest(request);
 
-			if (jwtService.isTokenValid(TOKEN)) {
-				final String USERNAME = jwtService.getUsernameFromToken(TOKEN);
+			//			if (jwtService.isTokenValid(TOKEN)) {
+			jwtService.isTokenValid(TOKEN);
+			final String USERNAME = jwtService.getUsernameFromToken(TOKEN);
 
-				if (USERNAME == null || SecurityContextHolder.getContext().getAuthentication() != null) {
-					filterChain.doFilter(request, response);
-					return;
-				}
-
-				final UserDetails userDetails = appConfig.userDetailsService().loadUserByUsername(USERNAME);
-				UserDTO userDTO = userService.authentication(userDetails.getUsername(), userDetails.getPassword());
-
-				if (userDTO == null) {
-					filterChain.doFilter(request, response);
-					return;
-				}
-
-				List<GrantedAuthority> roles = new ArrayList<>();
-				roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-
-				var auth = new UsernamePasswordAuthenticationToken(userDTO, null, roles);
-				auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(auth);
+			if (USERNAME == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+				filterChain.doFilter(request, response);
+				return;
 			}
 
+			final UserDetails userDetails = appConfig.userDetailsService().loadUserByUsername(USERNAME);
+			UserDTO userDTO = userService.authentication(userDetails.getUsername(), userDetails.getPassword());
+
+			if (userDTO == null) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+
+			List<GrantedAuthority> roles = new ArrayList<>();
+			roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+			var auth = new UsernamePasswordAuthenticationToken(userDTO, null, roles);
+			auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(auth);
+			//}
 			filterChain.doFilter(request, response);
 		} catch (APIRequestException ex) {
 			handleException(response, ex);
