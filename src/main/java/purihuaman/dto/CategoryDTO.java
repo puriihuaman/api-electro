@@ -3,10 +3,15 @@ package purihuaman.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
-@Data
-public class CategoryDTO {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class CategoryDTO extends RepresentationModel<CategoryDTO> {
 	private String categoryId;
 
 	@NotNull(message = "${field.null}")

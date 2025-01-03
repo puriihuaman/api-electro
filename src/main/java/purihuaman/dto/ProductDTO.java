@@ -2,11 +2,16 @@ package purihuaman.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 import purihuaman.model.CategoryModel;
 
-@Data
-public class ProductDTO {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class ProductDTO extends RepresentationModel<ProductDTO> {
 	private String productId;
 
 	@NotNull(message = "${field.null}")

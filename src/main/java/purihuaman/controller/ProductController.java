@@ -18,6 +18,8 @@ import purihuaman.util.APIResponseHandler;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 @Validated
 @RestController
 @RequestMapping("/api/products")
@@ -51,8 +53,13 @@ public class ProductController {
 
 		ProductDTO product = productService.getProductById(productId);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, product);
+		product.add(linkTo(methodOn(ProductController.class).getProductById(productId)).withSelfRel());
+		product.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
+		product.add(linkTo(methodOn(CategoryController.class).getCategoryById(product
+			.getCategory()
+			.getCategoryId())).withRel("category"));
 
+		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, product);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
