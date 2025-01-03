@@ -1,6 +1,9 @@
 package purihuaman.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -45,65 +48,23 @@ public class JwtService {
 	}
 
 	public String getUsernameFromToken(String token) {
-		try {
-			if (token == null || token.isEmpty()) {
-				throw new APIRequestException(APIError.UNAUTHORIZED_ACCESS, "Invalid token", "Token is null or empty");
-			}
-
-			return getUsernameOrExpirationFromToken(token, Claims::getSubject);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
+		if (token == null || token.isEmpty()) {
+			throw new APIRequestException(APIError.UNAUTHORIZED_ACCESS, "Invalid token", "Token is null or empty");
 		}
+		return getUsernameOrExpirationFromToken(token, Claims::getSubject);
 	}
 
 	public boolean isTokenValid(final String token) {
-		return isTokenExpired(token);
-	}
-
-	private boolean isTokenExpired(final String token) {
 		try {
-			return extractExpiration(token).before(new Date());
-		} catch (ExpiredJwtException ex) {
-			throw new APIRequestException(
-				APIError.UNAUTHORIZED_ACCESS,
-				"Token expired",
-				"The provided token has expired. Please authenticate again to obtain a new token."
-			);
+			Date getExpiration = getUsernameOrExpirationFromToken(token, Claims::getExpiration);
+			return !getExpiration.before(new Date());
+		} catch (ExpiredJwtException | MalformedJwtException | SignatureException | IllegalArgumentException ex) {
+			return false;
 		}
-	}
-
-	private Date extractExpiration(final String token) {
-		return getUsernameOrExpirationFromToken(token, Claims::getExpiration);
 	}
 
 	private <T> T getUsernameOrExpirationFromToken(final String token, Function<Claims, T> claimsResolver) {
-		try {
-			Claims claims = Jwts.parser().verifyWith(getKey()).build().parseSignedClaims(token).getPayload();
-			return claimsResolver.apply(claims);
-		} catch (SignatureException ex) {
-			throw new APIRequestException(
-				APIError.UNAUTHORIZED_ACCESS,
-				"Invalid token signature",
-				"The token signature is invalid. Ensure the token is correctly signed with the expected key."
-			);
-		} catch (UnsupportedJwtException ex) {
-			throw new APIRequestException(
-				APIError.UNAUTHORIZED_ACCESS,
-				"Unsupported token",
-				"The provided token is unsupported. Please use a compatible JWT format."
-			);
-		} catch (MalformedJwtException ex) {
-			throw new APIRequestException(
-				APIError.UNAUTHORIZED_ACCESS,
-				"Malformed token",
-				"The token structure is malformed. Verify that the token is well-formed and complete."
-			);
-		} catch (IllegalArgumentException ex) {
-			throw new APIRequestException(
-				APIError.UNAUTHORIZED_ACCESS,
-				"Empty or null token",
-				"The token is empty or null. Ensure a valid token is provided."
-			);
-		}
+		Claims claims = Jwts.parser().verifyWith(getKey()).build().parseSignedClaims(token).getPayload();
+		return claimsResolver.apply(claims);
 	}
 }
