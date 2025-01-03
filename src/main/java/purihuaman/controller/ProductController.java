@@ -43,6 +43,14 @@ public class ProductController {
 		products =
 			(keywords.isEmpty()) ? productService.getAllProducts(page) : productService.getProductsByFilters(keywords, page);
 
+		products.forEach(product -> {
+			product.add(linkTo(methodOn(ProductController.class).getProductById(product.getProductId())).withSelfRel());
+			product.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
+			product.add(linkTo(methodOn(CategoryController.class).getCategoryById(product
+				.getCategory()
+				.getCategoryId())).withRel("category"));
+		});
+
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, products);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
@@ -67,8 +75,13 @@ public class ProductController {
 	public ResponseEntity<APIResponse> addProduct(final @Valid @RequestBody ProductDTO product) {
 		ProductDTO savedProduct = productService.addProduct(product);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, savedProduct);
+		savedProduct.add(linkTo(methodOn(ProductController.class).getProductById(savedProduct.getProductId())).withSelfRel());
+		savedProduct.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
+		savedProduct.add(linkTo(methodOn(CategoryController.class).getCategoryById(savedProduct
+			.getCategory()
+			.getCategoryId())).withRel("category"));
 
+		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, savedProduct);
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
 	}
 
@@ -82,6 +95,12 @@ public class ProductController {
 
 		ProductDTO updatedProduct = productService.updateProduct(productId, product);
 		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedProduct);
+
+		updatedProduct.add(linkTo(methodOn(ProductController.class).getProductById(updatedProduct.getProductId())).withSelfRel());
+		updatedProduct.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
+		updatedProduct.add(linkTo(methodOn(CategoryController.class).getCategoryById(updatedProduct
+			.getCategory()
+			.getCategoryId())).withRel("category"));
 
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
 	}
