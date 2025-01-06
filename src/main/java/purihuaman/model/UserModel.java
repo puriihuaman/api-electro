@@ -1,7 +1,6 @@
 package purihuaman.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -41,14 +40,16 @@ public class UserModel {
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
 	@Column(name = "password", length = 100, nullable = false)
+	@Pattern(
+		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{6,}$", message = "${user.password}"
+	)
 	private String password;
-//	@Pattern(
-//		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
-//		message = "${user.pattern.password}"
-//	)
 
-//	@Valid
-//	@ManyToOne
-//	@JoinColumn(name = "role_id", referencedColumnName = "role_id")
-//	private RoleModel role;
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+	@JoinTable(
+		name = "users_roles",
+		joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+	)
+	private Set<RoleModel> roles;
 }

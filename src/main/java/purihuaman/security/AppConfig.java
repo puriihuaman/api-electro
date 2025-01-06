@@ -23,8 +23,10 @@ public class AppConfig {
 	public UserDetailsService userDetailsService() {
 		return (username) -> {
 			final UserDTO userFound = userService.getUserByUsername(username);
+			UserDTO user = userService.authentication(userFound.getUsername(), userFound.getPassword());
 
-			return User.builder().username(userFound.getUsername()).password(userFound.getPassword()).build();
+			//return User.builder().username(userFound.getUsername()).password(userFound.getPassword()).build();
+			return User.builder().username(user.getUsername()).password(user.getPassword()).build();
 		};
 	}
 

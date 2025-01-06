@@ -9,22 +9,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import purihuaman.dao.UserDAO;
+import purihuaman.dao.repository.RoleRepository;
 import purihuaman.dao.repository.UserRepository;
 import purihuaman.dto.UserDTO;
 import purihuaman.enums.APIError;
+import purihuaman.enums.ERole;
 import purihuaman.exception.APIRequestException;
 import purihuaman.mapper.UserMapper;
+import purihuaman.model.RoleModel;
 import purihuaman.model.UserModel;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
 public class UserDAOImpl implements UserDAO {
 	private final UserMapper userMapper;
 	private final UserRepository userRepository;
+	private final RoleRepository roleRepository;
 
 	private final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
 
@@ -32,6 +34,7 @@ public class UserDAOImpl implements UserDAO {
 	public List<UserDTO> getAllUsers(final Pageable page) {
 		try {
 			List<UserModel> users = userRepository.findAll(page).getContent();
+
 			return userMapper.toUserDTOList(users);
 		} catch (DataAccessException ex) {
 			throw new APIRequestException(APIError.DATABASE_ERROR);
@@ -119,10 +122,27 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public UserDTO addUser(final @Valid UserDTO user) {
 		try {
+			ERole
+				matchedRole =
+				user
+					.getRoles()
+					.stream()
+					.map(RoleModel::getRoleName)
+					.filter(roleName -> Arrays.asList(ERole.values()).contains(roleName))
+					.findFirst()
+					.orElseThrow(() -> new APIRequestException(APIError.RECORD_NOT_FOUND));
+
+			RoleModel
+				role =
+				roleRepository
+					.findByRoleName(matchedRole)
+					.orElseThrow(() -> new APIRequestException(APIError.RECORD_NOT_FOUND));
+
 			UserModel userModel = userMapper.toUserModel(user);
 
 			userModel.setUserId(UUID.randomUUID().toString());
 			userModel.setPassword(ENCODER.encode(user.getPassword()));
+			userModel.setRoles(Set.of(role));
 
 			UserModel savedUser = userRepository.save(userModel);
 

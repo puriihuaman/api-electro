@@ -1,8 +1,10 @@
 package purihuaman.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import purihuaman.dto.CategoryDTO;
@@ -28,7 +30,7 @@ public class CategoryController {
 
 	private ResponseEntity<APIResponse> API_RESPONSE;
 
-	@GetMapping
+	@GetMapping(produces = "application/json")
 	public ResponseEntity<Object> getAllCategories() {
 		List<CategoryDTO> categories = categoryService.getAllCategories();
 
@@ -41,7 +43,8 @@ public class CategoryController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping(value = "/{id}", produces = "application/json")
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER', 'INVITED')")
 	public ResponseEntity<Object> getCategoryById(final @PathVariable("id") String categoryId) {
 		validateId(categoryId);
 
@@ -58,7 +61,8 @@ public class CategoryController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
-	@PostMapping
+	@PostMapping(produces = "application/json")
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<Object> addCategory(final @Valid @RequestBody CategoryDTO category) {
 		CategoryDTO createdCategory = categoryService.addCategory(category);
 
@@ -69,7 +73,9 @@ public class CategoryController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", produces = "application/json")
+	@Transactional
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<Object> updateCategory(
 		final @PathVariable("id") String categoryId,
 		final @Valid @RequestBody CategoryDTO category
@@ -85,7 +91,9 @@ public class CategoryController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
 	}
 
-	@DeleteMapping(value = "/{id}")
+	@DeleteMapping(value = "/{id}", produces = "application/json")
+	@Transactional
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<APIResponse> deleteCategory(final @PathVariable("id") String categoryId) {
 		validateId(categoryId);
 

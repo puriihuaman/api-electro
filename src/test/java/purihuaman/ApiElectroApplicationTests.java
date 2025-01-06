@@ -26,10 +26,10 @@ class ApiElectroApplicationTests {
 		UserModel user = new UserModel();
 
 		user.setUserId(UUID.randomUUID().toString());
-		user.setFirstName("Cielo");
-		user.setLastName("Fernandez");
-		user.setEmail("sky@gmail.com");
-		user.setPassword(encoder.encode("CHICA_RAP"));
+		user.setFirstName("Spring");
+		user.setLastName("Spring Boot");
+		user.setEmail("spring@gmail.com");
+		user.setPassword(encoder.encode("SPR¡NG_boot_2025"));
 
 		UserModel savedUser = userRepository.save(user);
 		Assertions.assertNotNull(savedUser);
