@@ -60,18 +60,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		final UserDetails userDetails = appConfig.userDetailsService().loadUserByUsername(USERNAME);
-		UserDTO userDTO = userService.authentication(userDetails.getUsername(), userDetails.getPassword());
+		final UserDetails user = appConfig.userDetailsService().loadUserByUsername(USERNAME);
+		//		UserDTO userDTO = userService.authentication(userDetails.getUsername(), userDetails.getPassword());
 
-		if (userDTO == null) {
-			sendErrorResponse(response, "User not authenticated", "The user could not be authenticated.");
-			return;
-		}
+		//		if (userDTO == null) {
+		//			sendErrorResponse(response, "User not authenticated", "The user could not be authenticated.");
+		//			return;
+		//		}
 
-		List<GrantedAuthority> roles = new ArrayList<>();
-		roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		// List<GrantedAuthority> roles = new ArrayList<>();
+		// roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-		var auth = new UsernamePasswordAuthenticationToken(userDTO, null, roles);
+		var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 		auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		filterChain.doFilter(request, response);

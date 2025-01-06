@@ -1,11 +1,16 @@
 package purihuaman.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.*;
 import purihuaman.model.RoleModel;
 
-@Data
+import java.util.Set;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class UserDTO {
 	private String userId;
 
@@ -30,12 +35,10 @@ public class UserDTO {
 
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
+	@Pattern(
+		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{6,}$", message = "${user.password}"
+	)
 	private String password;
-//	@Pattern(
-//		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
-//		message = "${user.pattern.password}"
-//	)
 
-//	@Valid
-//	private RoleModel role;
+	private Set<RoleModel> roles;
 }

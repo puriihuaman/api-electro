@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -30,7 +31,7 @@ public class SecurityConfig {
 		http
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests((authRequest) -> authRequest
-				.requestMatchers("/api/auth/**")
+				.requestMatchers(HttpMethod.POST, "/api/auth/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated());

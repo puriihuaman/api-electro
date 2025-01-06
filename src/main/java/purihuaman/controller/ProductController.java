@@ -1,5 +1,6 @@
 package purihuaman.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +19,8 @@ import purihuaman.util.APIResponseHandler;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Validated
 @RestController
@@ -29,7 +31,7 @@ public class ProductController {
 
 	private final ProductService productService;
 
-	@GetMapping
+	@GetMapping(produces = "application/json")
 	public ResponseEntity<APIResponse> getAllProducts(
 		final @RequestParam Map<String, String> keywords
 	)
@@ -55,7 +57,7 @@ public class ProductController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping(value = "/{id}", produces = "application/json")
 	public ResponseEntity<APIResponse> getProductById(final @Valid @PathVariable("id") String productId) {
 		validateId(productId);
 
@@ -85,7 +87,8 @@ public class ProductController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", produces = "application/json")
+	@Transactional
 	public ResponseEntity<APIResponse> updateProduct(
 		final @PathVariable("id") String productId,
 		final @Valid @RequestBody ProductDTO product
@@ -105,7 +108,8 @@ public class ProductController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping(value = "/{id}", produces = "application/json")
+	@Transactional
 	public ResponseEntity<APIResponse> deleteProduct(final @PathVariable("id") String productId) {
 		validateId(productId);
 

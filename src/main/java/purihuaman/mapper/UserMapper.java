@@ -10,7 +10,7 @@ import java.util.List;
 public interface UserMapper {
 	UserModel toUserModel(UserDTO userDTO);
 
-	UserDTO toUserDTO(UserModel userModel);
+	UserDTO toUserDTO(UserModel user) ;
 
 	List<UserModel> toUserModelList(List<UserDTO> userDTOList);
 

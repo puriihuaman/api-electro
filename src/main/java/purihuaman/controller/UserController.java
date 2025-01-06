@@ -1,5 +1,6 @@
 package purihuaman.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +28,7 @@ public class UserController {
 
 	private final UserService userService;
 
-	@GetMapping
+	@GetMapping(produces = "application/json")
 	public ResponseEntity<APIResponse> getAllUsers(
 		final @RequestParam Map<String, String> keywords
 	)
@@ -44,7 +45,7 @@ public class UserController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping(value = "/{id}", produces = "application/json")
 	public ResponseEntity<APIResponse> getUserById(final @PathVariable("id") String userId) {
 		validateId(userId);
 
@@ -54,7 +55,7 @@ public class UserController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
 	}
 
-	@PostMapping
+	@PostMapping(produces = "application/json")
 	public ResponseEntity<APIResponse> addUser(final @Valid @RequestBody UserDTO user) {
 		UserDTO savedUser = userService.addUser(user);
 
@@ -62,7 +63,8 @@ public class UserController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", produces = "application/json")
+	@Transactional
 	public ResponseEntity<APIResponse> updateUser(
 		final @PathVariable("id") String userId,
 		final @Valid @RequestBody UserDTO user
@@ -76,7 +78,8 @@ public class UserController {
 		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping(value = "/{id}", produces = "application/json")
+	@Transactional
 	public ResponseEntity<APIResponse> deleteUser(final @PathVariable("id") String userId) {
 		validateId(userId);
 
