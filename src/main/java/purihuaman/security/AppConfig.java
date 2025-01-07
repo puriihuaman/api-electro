@@ -7,12 +7,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import purihuaman.dto.UserDTO;
 import purihuaman.service.UserService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,8 +30,15 @@ public class AppConfig {
 			final UserDTO userFound = userService.getUserByUsername(username);
 			UserDTO user = userService.authentication(userFound.getUsername(), userFound.getPassword());
 
-			//return User.builder().username(userFound.getUsername()).password(userFound.getPassword()).build();
-			return User.builder().username(user.getUsername()).password(user.getPassword()).build();
+			List<GrantedAuthority>
+				roles =
+				user
+					.getRoles()
+					.stream()
+					.map((role) -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName().name()))
+					.collect(Collectors.toList());
+
+			return User.builder().username(user.getUsername()).password(user.getPassword()).authorities(roles).build();
 		};
 	}
 

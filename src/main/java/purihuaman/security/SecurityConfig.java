@@ -3,20 +3,15 @@ package purihuaman.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import purihuaman.enums.APIError;
-import purihuaman.exception.APIRequestException;
 
 @Configuration
 @EnableWebSecurity
@@ -28,41 +23,30 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests((authRequest) -> authRequest
-				.requestMatchers(HttpMethod.POST, "/api/auth/**")
-				.permitAll()
-				.anyRequest()
-				.authenticated());
+		http.csrf(AbstractHttpConfigurer::disable);
 
-		http
-			.sessionManagement((session) -> {
-				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		http.authorizeHttpRequests((authRequest) -> {
+			authRequest.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll();
 
-				session.maximumSessions(1);
-			})
-			.authenticationProvider(authProvider)
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-			.logout((logout) -> {
-				logout.logoutUrl("/api/auth/logout");
-				logout.addLogoutHandler((request, response, authentication) -> {
-					final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-					logout(authHeader);
-				});
-				logout.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
-			});
+			authRequest.requestMatchers(HttpMethod.GET, "/api/categories/**").hasAnyRole("ADMIN", "USER", "INVITED");
+			authRequest.requestMatchers(HttpMethod.POST, "/api/categories/**").hasAnyRole("ADMIN", "USER");
+			authRequest.requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyRole("ADMIN", "USER");
+			authRequest.requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN");
+
+			authRequest.requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("ADMIN", "USER", "INVITED");
+			authRequest.requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole("ADMIN", "USER");
+			authRequest.requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("ADMIN", "USER");
+			authRequest.requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN");
+
+			authRequest.anyRequest().authenticated();
+		});
+
+		http.sessionManagement((session) -> {
+			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+			session.maximumSessions(1);
+		}).authenticationProvider(authProvider).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
-	}
-
-	private void logout(String token) {
-		if (token == null || !token.startsWith("Bearer ")) {
-			throw new APIRequestException(
-				APIError.UNAUTHORIZED_ACCESS,
-				"Invalid token. Please re-login",
-				"The provided token is invalid or has expired."
-			);
-		}
 	}
 }
