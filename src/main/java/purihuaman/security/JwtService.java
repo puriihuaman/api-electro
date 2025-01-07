@@ -7,7 +7,6 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import purihuaman.dto.UserDTO;
@@ -16,11 +15,11 @@ import purihuaman.exception.APIRequestException;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
-@Slf4j
 public class JwtService {
 	@Value("${jwt.secret.key}")
 	private String SECRET_KEY;
@@ -32,9 +31,12 @@ public class JwtService {
 	}
 
 	public String buildToken(UserDTO user) {
+
+		List<String> roles = user.getRoles().stream().map((role) -> "ROLE_" + role.getRoleName().name()).toList();
+
 		return Jwts
 			.builder()
-			.claims(Map.of("firstName", user.getFirstName()))
+			.claims(Map.of("firstName", user.getFirstName(), "lastName", user.getLastName(), "roles", roles))
 			.subject(user.getUsername())
 			.issuedAt(new Date(System.currentTimeMillis()))
 			.expiration(new Date(System.currentTimeMillis() + TIME_EXPIRATION))

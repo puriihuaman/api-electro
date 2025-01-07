@@ -8,27 +8,20 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import purihuaman.dto.UserDTO;
 import purihuaman.exception.ErrorResponse;
-import purihuaman.service.UserService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 	private final AppConfig appConfig;
 	private final JwtService jwtService;
-	private final UserService userService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -40,9 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 		final String TOKEN = getTokenFromRequest(request, response);
 
-		if (TOKEN == null) {
-			return;
-		}
+		if (TOKEN == null) return;
 
 		if (!jwtService.isTokenValid(TOKEN)) {
 			sendErrorResponse(
@@ -61,15 +52,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 
 		final UserDetails user = appConfig.userDetailsService().loadUserByUsername(USERNAME);
-		//		UserDTO userDTO = userService.authentication(userDetails.getUsername(), userDetails.getPassword());
-
-		//		if (userDTO == null) {
-		//			sendErrorResponse(response, "User not authenticated", "The user could not be authenticated.");
-		//			return;
-		//		}
-
-		// List<GrantedAuthority> roles = new ArrayList<>();
-		// roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
 		var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 		auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -86,12 +68,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	{
 		final String AUTH_HEADER = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-		if (AUTH_HEADER == null) {
-			sendErrorResponse(response, "Authorization header is missing", "The Authorization header is required");
-			return null;
-		}
-
-		if (!AUTH_HEADER.startsWith("Bearer ")) {
+		if (AUTH_HEADER == null || !AUTH_HEADER.startsWith("Bearer ")) {
 			sendErrorResponse(
 				response,
 				"Authorization header must start with 'Bearer '",
@@ -101,6 +78,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 
 		final String TOKEN = AUTH_HEADER.replace("Bearer ", "");
+
 		if (TOKEN.isEmpty()) {
 			sendErrorResponse(response, "Empty token", "Do not provide a token");
 			return null;
