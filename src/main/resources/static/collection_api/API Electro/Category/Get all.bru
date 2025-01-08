@@ -1,0 +1,15 @@
+meta {
+  name: Get all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{API_BACKEND}}/categories
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJmaXJzdE5hbWUiOiJOZXltYXIiLCJsYXN0TmFtZSI6IkpyIiwicm9sZXMiOlsiUk9MRV9JTlZJVEVEIl0sInN1YiI6IkpSMjAyNSIsImlhdCI6MTczNjM1NjU5OSwiZXhwIjoxNzM2NDQyOTk5fQ.gYwadZ3WnApzn7YFysC9lpU8nKXZ2VUNWwpda95IAOMMj62vSv-KK9-60zk3q6nF
+}

@@ -45,7 +45,10 @@ public class SecurityConfig {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 			session.maximumSessions(1);
-		}).authenticationProvider(authProvider).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		}).authenticationProvider(authProvider).addFilterBefore(
+			jwtAuthFilter,
+			UsernamePasswordAuthenticationFilter.class
+		);
 
 		return http.build();
 	}

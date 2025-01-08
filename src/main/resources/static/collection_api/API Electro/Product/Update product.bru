@@ -1,0 +1,26 @@
+meta {
+  name: Update product
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{API_BACKEND}}/products/26c8103a-63c7-4731-80ee-8bbb42867284
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "productId": "26c8103a-63c7-4731-80ee-8bbb42867284",
+    "productName": "Tablet HP 8676788",
+    "price": 1200,
+    "oldPrice": 1250,
+    "newProduct": 0,
+    "photo": "./img/product04.png",
+    "category": {
+      "categoryId": "76812a61-3ddb-4162-944a-57aaae6fe3b2",
+      "categoryName": "Tableta"
+    }
+  }
+}

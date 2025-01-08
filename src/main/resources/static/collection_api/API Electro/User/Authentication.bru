@@ -1,0 +1,18 @@
+meta {
+  name: Authentication
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{API_BACKEND}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "JR2025",
+    "password": "N3&m4R_Jr"
+  }
+}

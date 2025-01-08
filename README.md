@@ -5,6 +5,8 @@ gestionar productos, categorías y usuarios mediante las operaciones básicas de
 Eliminar). Además, implementa seguridad con Spring Security y JWT para la autenticación y autorización de usuarios, así
 como manejo avanzado de errores para garantizar una experiencia de usuario robusta.
 
+![Demo](/src/main/resources/static/demo/demo.png)
+
 ## Características principales
 
 - **Gestión de usuarios:** CRUD para usuarios con roles diferenciados (admin, user, invited).
@@ -38,9 +40,11 @@ como manejo avanzado de errores para garantizar una experiencia de usuario robus
    git clone https://github.com/puriihuaman/api-electro.git
    cd api-electro
    ```
-
 2. **Configurar la base de datos:**
     - Crear una base de datos en MySQL.
+        - Buscar el fichero del script de la base de datos en: `resources/static/db/electro.sql`.
+        - Copiar el contenido o abrirlo desde `Worbench`.
+        - Luego ejecutar el todo el script.
     - Actualizar el archivo `application.properties` o `application.yml` con las credenciales de tu base de datos:
       ```properties
       spring.datasource.url=jdbc:mysql://localhost:3306/nombre_base_datos
@@ -61,6 +65,10 @@ como manejo avanzado de errores para garantizar una experiencia de usuario robus
    ```bash
    mvn spring-boot:run
    ```
+6. **Importa la colección en tu Rest Client**
+    - Buscar la carpeta de los endpoints en: `resources/static/collection_api/API Electro`
+    - Importa la carpeta en tu **Rest Client**
+      favorito ([Postman](https://www.postman.com/), [Bruno](https://www.usebruno.com/) o otro).
 
 ## Endpoints principales
 
