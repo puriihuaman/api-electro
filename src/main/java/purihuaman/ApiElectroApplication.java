@@ -12,7 +12,6 @@ import purihuaman.enums.ERole;
 import purihuaman.model.RoleModel;
 import purihuaman.model.UserModel;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,28 +31,28 @@ public class ApiElectroApplication {
 	@Bean
 	CommandLineRunner init(RoleRepository roleRepository) {
 		return args -> {
-			//UserModel user = new UserModel();
+			UserModel user = new UserModel();
 
-			//RoleModel role = roleRepository.findByRoleName(ERole.ADMIN).orElse(null);
-			//assert role != null;
+			RoleModel role = roleRepository.findByRoleName(ERole.ADMIN).orElse(null);
+			assert role != null;
 
-			//String encodedPassword = encoder.encode("AdM¡N&20_25");
+			String encodedPassword = encoder.encode("AdM¡N&20_25");
 
-			//user.setUserId(UUID.randomUUID().toString());
-			//user.setFirstName("Admin");
-			//user.setLastName("Anonymous");
-			//user.setEmail("admin@gmail.com");
-			//user.setRoles(Set.of(role));
-			//user.setPassword(encodedPassword);
+			user.setUserId(UUID.randomUUID().toString());
+			user.setFirstName("Admin");
+			user.setLastName("Anonymous");
+			user.setEmail("anonymous@gmail.com");
+			user.setRoles(Set.of(role));
+			user.setPassword(encodedPassword);
 
-			//UserModel savedUser = userRepository.save(user);
+			UserModel savedUser = userRepository.save(user);
 
-			//System.out.println("-------- Created user --------");
-			//System.out.println(savedUser.getFirstName());
-			//System.out.println(savedUser.getUsername());
-			//System.out.println(savedUser.getLastName());
-			//System.out.println(savedUser.getEmail());
-			//System.out.println("----------------");
+			System.out.println("-------- Created user --------");
+			System.out.println(savedUser.getFirstName());
+			System.out.println(savedUser.getUsername());
+			System.out.println(savedUser.getLastName());
+			System.out.println(savedUser.getEmail());
+			System.out.println("----------------");
 
 			/**
 			 * The username is made up of:

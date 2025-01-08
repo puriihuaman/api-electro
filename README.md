@@ -44,8 +44,8 @@ como manejo avanzado de errores para garantizar una experiencia de usuario robus
     - Crear una base de datos en MySQL.
         - Buscar el fichero del script de la base de datos en: `resources/static/db/electro.sql`.
         - Copiar el contenido o abrirlo desde `Worbench`.
-        - Luego ejecutar el todo el script.
-    - Actualizar el archivo `application.properties` o `application.yml` con las credenciales de tu base de datos:
+        - Luego ejecutar todo el script.
+    - Actualizar el archivo `application.properties` con las credenciales de tu base de datos:
       ```properties
       spring.datasource.url=jdbc:mysql://localhost:3306/nombre_base_datos
       spring.datasource.username=tu_usuario
@@ -56,19 +56,27 @@ como manejo avanzado de errores para garantizar una experiencia de usuario robus
    jwt.secret.key=tu_clave_secreta
    jwt.time.expiration=tu_tiempo_de_expiración_para_tu_token
    ```
-4. **Construir el proyecto:**
+4. **Verificar la clase principal `ApiElectroApplication.java`**
+    - Aquí en esta clase se va a crear el primer usuario al ejecutar
+    - Las credenciales que se usarían para hacer login:
+        - username: `ANON2025`
+        - password: `AdM¡N&20_25`
+    - `NOTA`: El `username` es autogenerado mediante un trigger cuando se crea el usuario y la contraseña se encripta.
+5. **Construir el proyecto:**
    ```bash
    mvn clean install
    ```
 
-5. **Ejecutar la aplicación:**
+6**Ejecutar la aplicación:**
+
    ```bash
    mvn spring-boot:run
    ```
-6. **Importa la colección en tu Rest Client**
-    - Buscar la carpeta de los endpoints en: `resources/static/collection_api/API Electro`
-    - Importa la carpeta en tu **Rest Client**
-      favorito ([Postman](https://www.postman.com/), [Bruno](https://www.usebruno.com/) o otro).
+
+7**Importa la colección en tu Rest Client**
+- Buscar la carpeta de los endpoints en: `resources/static/collection_api/API Electro`
+- Importa la carpeta en tu **Rest Client**
+favorito ([Postman](https://www.postman.com/), [Bruno](https://www.usebruno.com/) o otro).
 
 ## Endpoints principales
 
