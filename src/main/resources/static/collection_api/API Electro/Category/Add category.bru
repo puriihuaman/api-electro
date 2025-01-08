@@ -1,0 +1,21 @@
+meta {
+  name: Add category
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{API_BACKEND}}/categories
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJyb2xlcyI6WyJST0xFX0FETUlOIl0sImxhc3ROYW1lIjoiQW5vbnltb3VzIiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJzdWIiOiJBTk9OMjAyNSIsImlhdCI6MTczNjI4OTI5NywiZXhwIjoxNzM2Mzc1Njk3fQ.MFKEl9ROuaZ0mInyJr4fm-B_8vKCtOU69_y05Py7MFeuiFiQjVXPVzc7NVra2kqi
+}
+
+body:json {
+  {
+    "categoryName": "Hateoas"
+  }
+}

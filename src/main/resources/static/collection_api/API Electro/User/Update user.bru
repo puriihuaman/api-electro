@@ -1,0 +1,25 @@
+meta {
+  name: Update user
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{API_BACKEND}}/users/777db839-f6a6-468a-af3d-2aabb49b16b1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJmaXJzdE5hbWUiOiJDaWVsbyIsInN1YiI6IkZFUk4yMDI0IiwiaWF0IjoxNzM1MzQ0MTg4LCJleHAiOjE3MzU0MzA1ODh9.X4I2WORUFLS5xq12OwV6pZrOnxKDqdq1D6ng0BGzjRvvdBkix4QCbLrTTKXQ6shc
+}
+
+body:json {
+  {
+    "firstName": "Test",
+    "lastName": "Testing",
+    "email": "testing@gmail.com",
+    "username": "TEST2024",
+    "password": "TESTING_123"
+      }
+}

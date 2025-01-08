@@ -1,0 +1,23 @@
+meta {
+  name: Get Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{API_BACKEND}}/users
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~limit: 2
+  ~offset: 0
+  ~first_name: Cielo
+  ~email: joa@gmail.com
+  ~username: GERA2024
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJsYXN0TmFtZSI6IkFub255bW91cyIsImZpcnN0TmFtZSI6IkFkbWluIiwic3ViIjoiQU5PTjIwMjUiLCJpYXQiOjE3MzYyMTkyOTQsImV4cCI6MTczNjMwNTY5NH0.0wlk7H7sfoc--9A2qvidG7a8j7myzyChKwTCATHUwHhJADQmnfFwKwJJ4NYYGQO_
+}

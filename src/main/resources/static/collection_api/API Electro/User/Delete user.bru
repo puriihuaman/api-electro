@@ -1,0 +1,15 @@
+meta {
+  name: Delete user
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{API_BACKEND}}/users/c12ea58f-ed17-4853-85ef-8fd3b5b545f6
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJmaXJzdE5hbWUiOiJDaWVsbyIsInN1YiI6IkZFUk4yMDI0IiwiaWF0IjoxNzM1MzQ0MTg4LCJleHAiOjE3MzU0MzA1ODh9.X4I2WORUFLS5xq12OwV6pZrOnxKDqdq1D6ng0BGzjRvvdBkix4QCbLrTTKXQ6shc
+}

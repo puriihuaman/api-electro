@@ -1,0 +1,27 @@
+meta {
+  name: Create user
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{API_BACKEND}}/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJmaXJzdE5hbWUiOiJBZG1pbiIsInN1YiI6IkFOT04yMDI1IiwiaWF0IjoxNzM2MTczMzk2LCJleHAiOjE3MzYyNTk3OTZ9.6YpV40U-NMb0LJII3FyA8qqomEIE4BhbGCISS5TRgEf2-OmAR1IQH-6owGEZjLh0
+}
+
+body:json {
+  {
+    "firstName": "Neymar",
+    "lastName": "Jr",
+    "email": "neymar@gmail.com",
+    "password": "N3&m4R_Jr",
+    "roles": [{
+            "roleName": "INVITED"
+      }]
+  }
+}
