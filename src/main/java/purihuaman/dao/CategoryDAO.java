@@ -1,17 +1,18 @@
 package purihuaman.dao;
 
-import purihuaman.dto.CategoryDTO;
-
 import java.util.List;
+import java.util.Optional;
+
+import purihuaman.entity.CategoryEntity;
 
 public interface CategoryDAO {
-	List<CategoryDTO> getAllCategories();
+	List<CategoryEntity> findAllCategories();
 
-	CategoryDTO getCategoryById(String categoryId);
+	Optional<CategoryEntity> findCategoryById(String categoryId);
 
-	CategoryDTO addCategory(CategoryDTO category);
+	CategoryEntity createCategory(CategoryEntity categoryEntity);
 
-	CategoryDTO updateCategory(String categoryId, CategoryDTO category);
+	CategoryEntity updateCategory(CategoryEntity categoryEntity);
 
-	Integer deleteCategory(String categoryId);
+	void deleteCategory(CategoryEntity categoryEntity);
 }

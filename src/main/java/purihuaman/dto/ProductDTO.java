@@ -1,10 +1,22 @@
 package purihuaman.dto;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import org.springframework.hateoas.RepresentationModel;
-import purihuaman.model.CategoryModel;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import purihuaman.entity.CategoryEntity;
 
 @Builder
 @AllArgsConstructor
@@ -12,7 +24,7 @@ import purihuaman.model.CategoryModel;
 @Getter
 @Setter
 public class ProductDTO extends RepresentationModel<ProductDTO> {
-	private String productId;
+	private String id;
 
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
@@ -23,21 +35,22 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
 	@NotNull(message = "${field.null}")
 	@PositiveOrZero(message = "${product.price}")
 	@Min(value = 0, message = "${product.min}")
-	private Double price;
+	private double price;
 
 	@NotNull(message = "${field.null}")
 	@PositiveOrZero(message = "${product.price}")
 	@Min(value = 0, message = "${product.min}")
-	private Double oldPrice;
+	private double oldPrice;
 
 	@NotNull(message = "${field.null}")
 	@Min(value = 0, message = "${product.min}")
-	private Integer newProduct;
+	private int newProduct;
 
 	@NotNull(message = "${field.null}")
 	@NotEmpty(message = "${field.empty}")
 	private String photo;
 
 	@Valid
-	private CategoryModel category;
+	@ManyToOne
+	private CategoryEntity category;
 }

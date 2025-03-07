@@ -2,17 +2,17 @@ package purihuaman.mapper;
 
 import org.mapstruct.Mapper;
 import purihuaman.dto.ProductDTO;
-import purihuaman.model.ProductModel;
+import purihuaman.entity.ProductEntity;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-	ProductModel toProductModel(ProductDTO product);
+	ProductEntity toProductModel(ProductDTO product);
 
-	ProductDTO toProductDTO(ProductModel product);
+	ProductDTO toProductDTO(ProductEntity productEntity);
 
-	List<ProductModel> toProductModelList(List<ProductDTO> products);
+	List<ProductEntity> toProductModelList(List<ProductDTO> products);
 
-	List<ProductDTO> toProductDTOList(List<ProductModel> products);
+	List<ProductDTO> toProductDTOList(List<ProductEntity> productEntities);
 }

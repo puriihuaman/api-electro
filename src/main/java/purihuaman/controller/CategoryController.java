@@ -1,12 +1,27 @@
 package purihuaman.controller;
 
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import purihuaman.dto.CategoryDTO;
 import purihuaman.enums.APIError;
 import purihuaman.enums.APISuccess;
@@ -15,40 +30,36 @@ import purihuaman.service.CategoryService;
 import purihuaman.util.APIResponse;
 import purihuaman.util.APIResponseHandler;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @Validated
 @RestController
-@RequestMapping(value = "/api/categories", produces = "application/json")
-@RequiredArgsConstructor
+@RequestMapping(value = "/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+@SecurityRequirement(name = "bearer-key")
 @Slf4j
 public class CategoryController {
 	private final CategoryService categoryService;
 
-	private ResponseEntity<APIResponse> API_RESPONSE;
+	public CategoryController(CategoryService categoryService) {
+		this.categoryService = categoryService;
+	}
 
 	@GetMapping
-	public ResponseEntity<Object> getAllCategories() {
-		List<CategoryDTO> categories = categoryService.getAllCategories();
+	public ResponseEntity<APIResponse> getAllCategories() {
+		List<CategoryDTO> categories = categoryService.findAllCategories();
 
 		for (CategoryDTO category : categories) {
-			category.add(linkTo(methodOn(CategoryController.class).getCategoryById(category.getCategoryId())).withSelfRel());
+			category.add(linkTo(methodOn(CategoryController.class).getCategoryById(category.getId())).withSelfRel());
 			category.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
 		}
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, categories);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_RETRIEVED.setMessage("Recovered Categories");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_RETRIEVED, categories);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Object> getCategoryById(final @PathVariable("id") String categoryId) {
-		validateId(categoryId);
+	public ResponseEntity<APIResponse> getCategoryById(@PathVariable("id") String categoryId) {
+		this.validateId(categoryId);
 
-		CategoryDTO category = categoryService.getCategoryById(categoryId);
+		CategoryDTO category = categoryService.findCategoryById(categoryId);
 
 		category.add(linkTo(methodOn(CategoryController.class).getCategoryById(categoryId)).withSelfRel());
 		category.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
@@ -57,50 +68,50 @@ public class CategoryController {
 			category.getCategoryName()
 		))).withRel("products"));
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, category);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_RETRIEVED.setMessage("Recovered Category");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_RETRIEVED, category);
 	}
 
 	@PostMapping
-	public ResponseEntity<Object> addCategory(final @Valid @RequestBody CategoryDTO category) {
-		CategoryDTO createdCategory = categoryService.addCategory(category);
+	public ResponseEntity<APIResponse> addCategory(@Valid @RequestBody CategoryDTO category) {
+		CategoryDTO createdCategory = categoryService.createCategory(category);
 
-		createdCategory.add(linkTo(methodOn(CategoryController.class).getCategoryById(createdCategory.getCategoryId())).withSelfRel());
+		createdCategory.add(linkTo(methodOn(CategoryController.class).getCategoryById(createdCategory.getId())).withSelfRel());
 		createdCategory.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, createdCategory);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_CREATED.setMessage("Category created");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED, createdCategory);
 	}
 
 	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<Object> updateCategory(
-		final @PathVariable("id") String categoryId,
-		final @Valid @RequestBody CategoryDTO category
+	public ResponseEntity<APIResponse> updateCategory(
+		@PathVariable("id") String categoryId,
+		@Valid @RequestBody CategoryDTO category
 	)
 	{
-		validateId(categoryId);
+		this.validateId(categoryId);
 		CategoryDTO updatedCategory = categoryService.updateCategory(categoryId, category);
 
-		updatedCategory.add(linkTo(methodOn(CategoryController.class).getCategoryById(updatedCategory.getCategoryId())).withSelfRel());
+		updatedCategory.add(linkTo(methodOn(CategoryController.class).getCategoryById(updatedCategory.getId())).withSelfRel());
 		updatedCategory.add(linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("categories"));
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedCategory);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_UPDATED.setMessage("Category updated");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED, updatedCategory);
 	}
 
 	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<APIResponse> deleteCategory(final @PathVariable("id") String categoryId) {
-		validateId(categoryId);
+	public ResponseEntity<APIResponse> deleteCategory(@PathVariable("id") String categoryId) {
+		this.validateId(categoryId);
 
 		categoryService.deleteCategory(categoryId);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_DELETED_SUCCESSFULLY, null);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_DELETED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_REMOVED.setMessage("Category deleted");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_REMOVED, null);
 	}
 
-	private void validateId(final String id) {
+	private void validateId(String id) {
 		if (id == null || id.length() != 36) {
 			throw new APIRequestException(APIError.INVALID_REQUEST_DATA);
 		}

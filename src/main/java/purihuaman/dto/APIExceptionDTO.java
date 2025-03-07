@@ -9,10 +9,10 @@ import java.util.Map;
 @Getter
 @RequiredArgsConstructor
 public class APIExceptionDTO {
-	private final Boolean hasError = true;
+	private final boolean hasError = true;
 	private final String message;
 	private final String description;
-	private final Integer code;
+	private final int code;
 	private final Map<String, String> reasons;
 	private final LocalDateTime timestamp;
 }

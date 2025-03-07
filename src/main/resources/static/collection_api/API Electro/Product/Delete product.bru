@@ -1,11 +1,15 @@
 meta {
-  name: Delete product
+  name: Delete productEntity
   type: http
   seq: 4
 }
 
 delete {
-  url: {{API_BACKEND}}/products/1
+  url: {{API_BACKEND}}/products/2abf00ee-cc5e-43e3-aca8-94ed1ceb87e0
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJDaWVsbyIsImxhc3ROYW1lIjoiRmVybmFuZGV6Iiwicm9sZSI6IkFETUlOIiwic3ViIjoic2t5IiwiaWF0IjoxNzQxMjc5MjAyLCJleHAiOjE3NDEzNjU2MDJ9.YRHf8B8ccdwDN1rUYUggKp07sMkmRE7zLF36OzueciE
 }

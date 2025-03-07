@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-	List<UserDTO> getAllUsers(Pageable page);
+	List<UserDTO> findAllUsers(Pageable page);
 
-	UserDTO getUserById(String userId);
+	UserDTO findUserById(String userId);
 
 	List<UserDTO> filterUsers(Map<String, String> filters, Pageable page);
 
-	UserDTO addUser(UserDTO user);
+	UserDTO createUser(UserDTO user);
 
 	UserDTO updateUser(String userId, UserDTO user);
 
-	Integer deleteUser(String userId);
+	void deleteUser(String userId);
 
 	UserDTO authentication(String username, String password);
 
-	UserDTO getUserByUsername(String username);
+	UserDTO findUserByUsername(String username);
 }

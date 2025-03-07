@@ -1,4 +1,4 @@
-package purihuaman.model;
+package purihuaman.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,17 +9,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-@Data
-@Entity
+@Entity(name = "Category")
 @Table(name = "categories")
-public class CategoryModel {
+@Data
+public class CategoryEntity {
 	@Id
-	@Column(name = "category_id", length = 40)
-	private String categoryId;
+	@Column(name = "id", unique = true, nullable = false, length = 36)
+	private String id;
 
-	@NotNull(message = "${field.null}")
-	@NotEmpty(message = "${field.empty}")
-	@Pattern(regexp = "^[a-zA-Z-áéíóúÁÉÍÓÚñÑ ]*$", message = "${field.category.name}")
+	@NotNull(message = "{field.null}")
+	@NotEmpty(message = "{field.empty}")
+	@Pattern(regexp = "^[a-zA-Z-áéíóúÁÉÍÓÚñÑ ]*$", message = "{field.category.name}")
 	@Column(name = "category_name", nullable = false, length = 30, unique = true)
 	private String categoryName;
 }

@@ -5,13 +5,13 @@ import purihuaman.dto.CategoryDTO;
 import java.util.List;
 
 public interface CategoryService {
-  List<CategoryDTO> getAllCategories();
+	List<CategoryDTO> findAllCategories();
 
-	CategoryDTO getCategoryById(String categoryId);
+	CategoryDTO findCategoryById(String categoryId);
 
-	CategoryDTO addCategory(CategoryDTO category);
+	CategoryDTO createCategory(CategoryDTO category);
 
 	CategoryDTO updateCategory(String categoryId, CategoryDTO category);
 
-	Integer deleteCategory(String categoryId);
+	void deleteCategory(String categoryId);
 }

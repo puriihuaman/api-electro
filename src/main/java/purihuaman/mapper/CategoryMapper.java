@@ -2,17 +2,17 @@ package purihuaman.mapper;
 
 import org.mapstruct.Mapper;
 import purihuaman.dto.CategoryDTO;
-import purihuaman.model.CategoryModel;
+import purihuaman.entity.CategoryEntity;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
-	CategoryModel toCategoryModel(CategoryDTO categoryDTO);
+	CategoryEntity toCategoryModel(CategoryDTO categoryDTO);
 
-	CategoryDTO toCategoryDTO(CategoryModel categoryModel);
+	CategoryDTO toCategoryDTO(CategoryEntity categoryEntityModel);
 
-	List<CategoryModel> toCategoryModelList(List<CategoryDTO> categoryList);
+	List<CategoryEntity> toCategoryModelList(List<CategoryDTO> categoryList);
 
-	List<CategoryDTO> toCategoryDTOList(List<CategoryModel> categoryList);
+	List<CategoryDTO> toCategoryDTOList(List<CategoryEntity> categoryEntityList);
 }
