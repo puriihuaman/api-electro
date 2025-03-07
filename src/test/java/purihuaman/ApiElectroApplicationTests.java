@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import purihuaman.dao.repository.UserRepository;
-import purihuaman.model.UserModel;
+import purihuaman.entity.UserEntity;
 
 import java.util.UUID;
 
@@ -23,16 +23,16 @@ class ApiElectroApplicationTests {
 
 	@Test
 	void addUser() {
-		UserModel user = new UserModel();
+		UserEntity userEntity = new UserEntity();
 
-		user.setUserId(UUID.randomUUID().toString());
-		user.setFirstName("Spring");
-		user.setLastName("Spring Boot");
-		user.setEmail("spring@gmail.com");
-		user.setPassword(encoder.encode("SPR¡NG_boot_2025"));
+		userEntity.setUserId(UUID.randomUUID().toString());
+		userEntity.setFirstName("Spring");
+		userEntity.setLastName("Spring Boot");
+		userEntity.setEmail("spring@gmail.com");
+		userEntity.setPassword(encoder.encode("SPR¡NG_boot_2025"));
 
-		UserModel savedUser = userRepository.save(user);
-		Assertions.assertNotNull(savedUser);
+		UserEntity savedUserEntity = userRepository.save(userEntity);
+		Assertions.assertNotNull(savedUserEntity);
 	}
 
 }

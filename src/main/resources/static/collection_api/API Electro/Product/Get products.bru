@@ -1,5 +1,5 @@
 meta {
-  name: Get products
+  name: Get productEntities
   type: http
   seq: 1
 }
@@ -7,19 +7,15 @@ meta {
 get {
   url: {{API_BACKEND}}/products
   body: none
-  auth: bearer
+  auth: inherit
 }
 
 params:query {
   ~offset: 0
-  ~limit: 2
-  ~category_name: Tableta
-  ~product_name: audífonos
-  ~max_price: 1000
-  ~min_price: 3800
-  ~new_product: 0
-}
-
-auth:bearer {
-  token: eyJhbGciOiJIUzM4NCJ9.eyJyb2xlcyI6WyJST0xFX0lOVklURUQiXSwibGFzdE5hbWUiOiJKciIsImZpcnN0TmFtZSI6Ik5leW1hciIsInN1YiI6IkpSMjAyNSIsImlhdCI6MTczNjI4OTYxMiwiZXhwIjoxNzM2Mzc2MDEyfQ.XSFy4JMR6f5nTFPWssjxamEIJX0jC4kUZXTL00zvBuavcq3vQzX5rLuuTeAZXzvh
+  ~limit: 1
+  ~categoryName: Mochila
+  ~productName: Mochila
+  ~maxPrice: 1000
+  ~minPrice: 3800
+  ~newProduct: 0
 }

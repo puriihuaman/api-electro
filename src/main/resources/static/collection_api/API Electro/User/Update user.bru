@@ -1,11 +1,11 @@
 meta {
-  name: Update user
+  name: Update userEntity
   type: http
   seq: 4
 }
 
 put {
-  url: {{API_BACKEND}}/users/777db839-f6a6-468a-af3d-2aabb49b16b1
+  url: {{API_BACKEND}}/users/06b94ddf-dd4a-44d6-bf8b-9973a9711ae8
   body: json
   auth: bearer
 }
@@ -16,10 +16,13 @@ auth:bearer {
 
 body:json {
   {
-    "firstName": "Test",
-    "lastName": "Testing",
-    "email": "testing@gmail.com",
-    "username": "TEST2024",
-    "password": "TESTING_123"
-      }
+    "firstName": "Joa",
+    "lastName": "Geraldine",
+    "email": "joa@gmail.com",
+    "username": "joa",
+    "password": "J0a&_2025",
+    "role": {
+      "roleName": "User"
+    }
+  }
 }

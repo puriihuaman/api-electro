@@ -2,17 +2,17 @@ package purihuaman.mapper;
 
 import org.mapstruct.Mapper;
 import purihuaman.dto.RoleDTO;
-import purihuaman.model.RoleModel;
+import purihuaman.entity.RoleEntity;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
-	RoleModel toRoleModel(RoleDTO role);
+	RoleEntity toRoleModel(RoleDTO role);
 
-	RoleDTO toRoleDTO(RoleModel role);
+	RoleDTO toRoleDTO(RoleEntity roleEntity);
 
-	List<RoleModel> toRoleModelList(List<RoleDTO> roles);
+	List<RoleEntity> toRoleModelList(List<RoleDTO> roles);
 
-	List<RoleDTO> toRoleDTOList(List<RoleModel> roles);
+	List<RoleDTO> toRoleDTOList(List<RoleEntity> roleEntities);
 }

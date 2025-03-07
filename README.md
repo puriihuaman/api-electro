@@ -9,12 +9,12 @@ como manejo avanzado de errores para garantizar una experiencia de usuario robus
 
 ## Características principales
 
-- **Gestión de usuarios:** CRUD para usuarios con roles diferenciados (admin, user, invited).
+- **Gestión de usuarios:** CRUD para usuarios con roleEntities diferenciados (admin, userEntity, invited).
 - **Gestión de productos:** Permite crear, leer, actualizar y eliminar productos.
 - **Gestión de categorías:** CRUD completo para la administración de categorías.
 - **Autenticación y autorización:**
     - Autenticación basada en JSON Web Tokens (JWT).
-    - Autorización basada en roles con control de acceso a endpoints específicos.
+    - Autorización basada en roleEntities con control de acceso a endpoints específicos.
 - **Arquitectura basada en capas:** Separación de responsabilidades en controladores, servicios, repositorios y
   entidades.
 - **Manejo avanzado de excepciones:** Gestión centralizada de errores con respuestas claras y específicas.
@@ -67,13 +67,13 @@ como manejo avanzado de errores para garantizar una experiencia de usuario robus
    mvn clean install
    ```
 
-6**Ejecutar la aplicación:**
+6. **Ejecutar la aplicación:**
 
    ```bash
    mvn spring-boot:run
    ```
 
-7**Importa la colección en tu Rest Client**
+7. **Importa la colección en tu Rest Client**
 - Buscar la carpeta de los endpoints en: `resources/static/collection_api/API Electro`
 - Importa la carpeta en tu **Rest Client**
 favorito ([Postman](https://www.postman.com/), [Bruno](https://www.usebruno.com/) o otro).
@@ -83,7 +83,7 @@ favorito ([Postman](https://www.postman.com/), [Bruno](https://www.usebruno.com/
 ### Autenticación
 
 - **Login:** `POST /api/auth/login`
-    - Solicita: `{ "username": "user", "password": "password" }`
+    - Solicita: `{ "username": "userEntity", "password": "password" }`
     - Responde: JWT Token
 
 ### Usuarios
@@ -95,10 +95,10 @@ favorito ([Postman](https://www.postman.com/), [Bruno](https://www.usebruno.com/
 
 ### Productos
 
-- **Crear producto:** `POST /api/products`
-- **Consultar productos:** `GET /api/products`
-- **Actualizar producto:** `PUT /api/products/{id}`
-- **Eliminar producto:** `DELETE /api/products/{id}`
+- **Crear producto:** `POST /api/productEntities`
+- **Consultar productos:** `GET /api/productEntities`
+- **Actualizar producto:** `PUT /api/productEntities/{id}`
+- **Eliminar producto:** `DELETE /api/productEntities/{id}`
 
 ### Categorías
 

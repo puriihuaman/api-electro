@@ -1,5 +1,5 @@
 meta {
-  name: Create user
+  name: Create userEntity
   type: http
   seq: 3
 }
@@ -11,17 +11,18 @@ post {
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzM4NCJ9.eyJmaXJzdE5hbWUiOiJBZG1pbiIsInN1YiI6IkFOT04yMDI1IiwiaWF0IjoxNzM2MTczMzk2LCJleHAiOjE3MzYyNTk3OTZ9.6YpV40U-NMb0LJII3FyA8qqomEIE4BhbGCISS5TRgEf2-OmAR1IQH-6owGEZjLh0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJhZG1pbiIsImxhc3ROYW1lIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTI3NzU4OSwiZXhwIjoxNzQxMzYzOTg5fQ.7EQTO61VUweo_3ZONxQWeUCVXzzkd5eXW1U9KlqBEgo
 }
 
 body:json {
   {
-    "firstName": "Neymar",
-    "lastName": "Jr",
-    "email": "neymar@gmail.com",
-    "password": "N3&m4R_Jr",
-    "roles": [{
-            "roleName": "INVITED"
-      }]
+    "firstName": "Joa",
+    "lastName": "Geraldine",
+    "email": "Joa@gmail.com",
+    "username": "Joa",
+    "password": "J0a&_2025",
+    "role": {
+      "roleName": "User"
+    }
   }
 }

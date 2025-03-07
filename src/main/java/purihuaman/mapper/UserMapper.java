@@ -2,17 +2,17 @@ package purihuaman.mapper;
 
 import org.mapstruct.Mapper;
 import purihuaman.dto.UserDTO;
-import purihuaman.model.UserModel;
+import purihuaman.entity.UserEntity;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-	UserModel toUserModel(UserDTO userDTO);
+	UserEntity toUserModel(UserDTO userDTO);
 
-	UserDTO toUserDTO(UserModel user) ;
+	UserDTO toUserDTO(UserEntity userEntity) ;
 
-	List<UserModel> toUserModelList(List<UserDTO> userDTOList);
+	List<UserEntity> toUserModelList(List<UserDTO> userDTOList);
 
-	List<UserDTO> toUserDTOList(List<UserModel> userModelList);
+	List<UserDTO> toUserDTOList(List<UserEntity> userEntityModelList);
 }

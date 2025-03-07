@@ -1,215 +1,61 @@
 package purihuaman.dao.impl;
 
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import purihuaman.dao.UserDAO;
-import purihuaman.dao.repository.RoleRepository;
 import purihuaman.dao.repository.UserRepository;
-import purihuaman.dto.UserDTO;
-import purihuaman.enums.APIError;
-import purihuaman.enums.ERole;
-import purihuaman.exception.APIRequestException;
-import purihuaman.mapper.UserMapper;
-import purihuaman.model.RoleModel;
-import purihuaman.model.UserModel;
+import purihuaman.entity.UserEntity;
 
-import java.util.*;
+import java.util.Optional;
 
 @Repository
-@RequiredArgsConstructor
 public class UserDAOImpl implements UserDAO {
-	private final UserMapper userMapper;
 	private final UserRepository userRepository;
-	private final RoleRepository roleRepository;
 
-	private final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
-
-	@Override
-	public List<UserDTO> getAllUsers(final Pageable page) {
-		try {
-			List<UserModel> users = userRepository.findAll(page).getContent();
-
-			return userMapper.toUserDTOList(users);
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public UserDAOImpl(UserRepository userRepository) {
+		this.userRepository = userRepository;
 	}
 
 	@Override
-	public UserDTO getUserById(final String userId) {
-		try {
-			UserModel
-				user =
-				userRepository.findById(userId).orElseThrow(() -> new APIRequestException(APIError.ENDPOINT_NOT_FOUND));
-
-			return userMapper.toUserDTO(user);
-		} catch (APIRequestException ex) {
-			throw ex;
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public Page<UserEntity> findAllUsers(Pageable page) {
+		return userRepository.findAll(page);
 	}
 
 	@Override
-	public UserDTO authentication(final String username, final String password) {
-		try {
-			UserModel
-				userFound =
-				userRepository
-					.findByUsernameAndPassword(username, password)
-					.orElseThrow(() -> new APIRequestException(APIError.ENDPOINT_NOT_FOUND));
-
-			return userMapper.toUserDTO(userFound);
-		} catch (APIRequestException ex) {
-			throw ex;
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public Optional<UserEntity> findUserById(String userId) {
+		return userRepository.findById(userId);
 	}
 
 	@Override
-	public UserDTO getUserByUsername(final String username) {
-		try {
-			UserModel
-				userFound =
-				userRepository.findByUsername(username).orElseThrow(() -> new APIRequestException(APIError.ENDPOINT_NOT_FOUND));
-
-			return userMapper.toUserDTO(userFound);
-		} catch (APIRequestException ex) {
-			throw ex;
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public Optional<UserEntity> authentication(String username, String password) {
+		return userRepository.findByUsernameAndPassword(username, password);
 	}
 
 	@Override
-	public List<UserDTO> filterUsers(final Map<String, String> filters, final Pageable page) {
-		try {
-			Short offset = (short) page.getOffset();
-			Short limit = (short) page.getPageSize();
-
-			List<UserModel> filteredUsers = userRepository.filterUsers(
-				filters.containsKey("first_name") ? filters.get("first_name").trim() : null,
-				filters.containsKey("last_price") ? filters.get("last_price").trim() : null,
-				filters.containsKey("email") ? filters.get("email").trim() : null,
-				filters.containsKey("username") ? filters.get("username").trim() : null,
-				offset,
-				limit
-			);
-
-			return userMapper.toUserDTOList(filteredUsers);
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public Optional<UserEntity> findUserByUsername(String username) {
+		return userRepository.findByUsername(username);
 	}
 
 	@Override
-	public UserDTO addUser(final @Valid UserDTO user) {
-		try {
-			ERole
-				matchedRole =
-				user
-					.getRoles()
-					.stream()
-					.map(RoleModel::getRoleName)
-					.filter(roleName -> Arrays.asList(ERole.values()).contains(roleName))
-					.findFirst()
-					.orElseThrow(() -> new APIRequestException(APIError.RECORD_NOT_FOUND));
-
-			RoleModel
-				role =
-				roleRepository
-					.findByRoleName(matchedRole)
-					.orElseThrow(() -> new APIRequestException(APIError.RECORD_NOT_FOUND));
-
-			UserModel userModel = userMapper.toUserModel(user);
-
-			userModel.setUserId(UUID.randomUUID().toString());
-			userModel.setPassword(ENCODER.encode(user.getPassword()));
-			userModel.setRoles(Set.of(role));
-
-			UserModel savedUser = userRepository.save(userModel);
-
-			return userMapper.toUserDTO(savedUser);
-		} catch (DataIntegrityViolationException ex) {
-			Throwable cause = ex.getCause();
-			Throwable rootCause = cause.getCause();
-			if (cause instanceof ConstraintViolationException || rootCause instanceof ConstraintViolationException)
-				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
-			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public Page<UserEntity> filterUsers(Specification<UserEntity> spec, Pageable page) {
+		return userRepository.findAll(spec, page);
 	}
 
 	@Override
-	public UserDTO updateUser(final String userId, final @Valid UserDTO user) {
-		try {
-			UserDTO userExisting = getUserById(userId);
-
-			userExisting.setFirstName(user.getFirstName());
-			userExisting.setLastName(user.getLastName());
-			userExisting.setEmail(user.getEmail());
-			userExisting.setPassword(ENCODER.encode(user.getPassword()));
-			userExisting.setUsername(user.getUsername());
-
-			UserModel updatedUser = userRepository.save(userMapper.toUserModel(userExisting));
-
-			return userMapper.toUserDTO(updatedUser);
-		} catch (APIRequestException ex) {
-			throw ex;
-		} catch (DataIntegrityViolationException ex) {
-			Throwable cause = ex.getCause();
-			Throwable rootCause = cause.getCause();
-			if (cause instanceof ConstraintViolationException || rootCause instanceof ConstraintViolationException)
-				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
-			else throw new APIRequestException(APIError.RESOURCE_ASSOCIATED_EXCEPTION);
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	public UserEntity createUser(@Valid UserEntity userEntity) {
+		return userRepository.save(userEntity);
 	}
 
 	@Override
-	public Integer deleteUser(final String userId) {
-		try {
-			UserDTO user = getUserById(userId);
+	public UserEntity updateUser(@Valid UserEntity userEntity) {
+		return userRepository.save(userEntity);
+	}
 
-			UserModel userModel = userMapper.toUserModel(user);
-			userRepository.deleteById(userModel.getUserId());
-
-			return 1;
-		} catch (APIRequestException ex) {
-			throw ex;
-		} catch (DataIntegrityViolationException ex) {
-			Throwable cause = ex.getCause();
-			Throwable rootCause = cause.getCause();
-			if (cause instanceof DataIntegrityViolationException || rootCause instanceof DataAccessException)
-				throw new APIRequestException(APIError.UNIQUE_CONSTRAINT_VIOLATION);
-			else throw new APIRequestException(APIError.RESOURCE_CONFLICT);
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
+	@Override
+	public void deleteUser(String userId) {
+		userRepository.deleteById(userId);
 	}
 }

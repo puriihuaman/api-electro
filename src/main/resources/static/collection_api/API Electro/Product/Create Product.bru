@@ -1,0 +1,29 @@
+meta {
+  name: Create Product
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{API_BACKEND}}/products
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJDaWVsbyIsImxhc3ROYW1lIjoiRmVybmFuZGV6Iiwicm9sZSI6IkFETUlOIiwic3ViIjoic2t5IiwiaWF0IjoxNzQxMjc5MjAyLCJleHAiOjE3NDEzNjU2MDJ9.YRHf8B8ccdwDN1rUYUggKp07sMkmRE7zLF36OzueciE
+}
+
+body:json {
+  {
+    "productName": "Eliminar",
+    "price": 6199,
+    "oldPrice": 5000,
+    "newProduct": 1,
+    "photo": "./img/product07.png",
+    "category": {
+      "id": "d6cb92c2-a0d6-4d38-8759-a11100a2aac8",
+      "categoryName": "Computadora"
+    }
+  }
+}

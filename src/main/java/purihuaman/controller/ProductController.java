@@ -2,9 +2,9 @@ package purihuaman.controller;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,101 +24,101 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Validated
 @RestController
-@RequestMapping("/api/products")
-@RequiredArgsConstructor
+@RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
-	private ResponseEntity<APIResponse> API_RESPONSE;
-
 	private final ProductService productService;
 
-	@GetMapping(produces = "application/json")
-	public ResponseEntity<APIResponse> getAllProducts(
-		final @RequestParam Map<String, String> keywords
-	)
-	{
+	public ProductController(ProductService productService) {
+		this.productService = productService;
+	}
+
+	@GetMapping
+	public ResponseEntity<APIResponse> getAllProducts(@RequestParam Map<String, String> keywords) {
 		List<ProductDTO> products;
 		short offset = keywords.containsKey("offset") ? Short.parseShort(keywords.get("offset")) : 0;
 		short limit = keywords.containsKey("limit") ? Short.parseShort(keywords.get("limit")) : 10;
 
 		Pageable page = PageRequest.of(offset, limit);
 
-		products =
-			(keywords.isEmpty()) ? productService.getAllProducts(page) : productService.getProductsByFilters(keywords, page);
+		products = (keywords.isEmpty()) ? productService.findAllProducts(page) : productService.filterProducts(keywords,
+		                                                                                                       page
+		);
 
 		products.forEach(product -> {
-			product.add(linkTo(methodOn(ProductController.class).getProductById(product.getProductId())).withSelfRel());
+			product.add(linkTo(methodOn(ProductController.class).getProductById(product.getId())).withSelfRel());
 			product.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
 			product.add(linkTo(methodOn(CategoryController.class).getCategoryById(product
-				.getCategory()
-				.getCategoryId())).withRel("category"));
+				                                                                      .getCategory()
+				                                                                      .getId())).withRel("category"));
 		});
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, products);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_RETRIEVED.setMessage("Recovered products");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_RETRIEVED, products);
 	}
 
-	@GetMapping(value = "/{id}", produces = "application/json")
-	public ResponseEntity<APIResponse> getProductById(final @Valid @PathVariable("id") String productId) {
-		validateId(productId);
+	@GetMapping("/{id}")
+	public ResponseEntity<APIResponse> getProductById(@Valid @PathVariable("id") String productId) {
+		this.validateId(productId);
 
-		ProductDTO product = productService.getProductById(productId);
+		ProductDTO product = productService.findProductById(productId);
 
 		product.add(linkTo(methodOn(ProductController.class).getProductById(productId)).withSelfRel());
 		product.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
-		product.add(linkTo(methodOn(CategoryController.class).getCategoryById(product
-			.getCategory()
-			.getCategoryId())).withRel("category"));
+		product.add(linkTo(methodOn(CategoryController.class).getCategoryById(product.getCategory().getId())).withRel(
+			"category"));
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, product);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_RETRIEVED.setMessage("Recovered product");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_RETRIEVED, product);
 	}
 
 	@PostMapping
-	public ResponseEntity<APIResponse> addProduct(final @Valid @RequestBody ProductDTO product) {
-		ProductDTO savedProduct = productService.addProduct(product);
+	public ResponseEntity<APIResponse> addProduct(@Valid @RequestBody ProductDTO product) {
+		ProductDTO savedProduct = productService.createProduct(product);
 
-		savedProduct.add(linkTo(methodOn(ProductController.class).getProductById(savedProduct.getProductId())).withSelfRel());
+		savedProduct.add(linkTo(methodOn(ProductController.class).getProductById(savedProduct.getId())).withSelfRel());
 		savedProduct.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
 		savedProduct.add(linkTo(methodOn(CategoryController.class).getCategoryById(savedProduct
-			.getCategory()
-			.getCategoryId())).withRel("category"));
+			                                                                           .getCategory()
+			                                                                           .getId())).withRel("category"));
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, savedProduct);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_CREATED.setMessage("Created product");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED, savedProduct);
 	}
 
-	@PutMapping(value = "/{id}", produces = "application/json")
+	@PutMapping("/{id}")
 	@Transactional
 	public ResponseEntity<APIResponse> updateProduct(
-		final @PathVariable("id") String productId,
-		final @Valid @RequestBody ProductDTO product
+		@PathVariable("id") String productId,
+		@Valid @RequestBody ProductDTO product
 	)
 	{
-		validateId(productId);
+		this.validateId(productId);
 
 		ProductDTO updatedProduct = productService.updateProduct(productId, product);
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedProduct);
 
-		updatedProduct.add(linkTo(methodOn(ProductController.class).getProductById(updatedProduct.getProductId())).withSelfRel());
+		updatedProduct.add(linkTo(methodOn(ProductController.class).getProductById(updatedProduct.getId())).withSelfRel());
 		updatedProduct.add(linkTo(methodOn(ProductController.class).getAllProducts(Map.of())).withRel("products"));
 		updatedProduct.add(linkTo(methodOn(CategoryController.class).getCategoryById(updatedProduct
-			.getCategory()
-			.getCategoryId())).withRel("category"));
+			                                                                             .getCategory()
+			                                                                             .getId())).withRel("category"));
 
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_UPDATED.setMessage("Updated product");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED, updatedProduct);
+
 	}
 
-	@DeleteMapping(value = "/{id}", produces = "application/json")
+	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<APIResponse> deleteProduct(final @PathVariable("id") String productId) {
-		validateId(productId);
+	public ResponseEntity<APIResponse> deleteProduct(@PathVariable("id") String productId) {
+		this.validateId(productId);
 
 		productService.deleteProduct(productId);
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_DELETED_SUCCESSFULLY, null);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_DELETED_SUCCESSFULLY.getStatus());
+
+		APISuccess.RESOURCE_REMOVED.setMessage("Deleted product");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_REMOVED, null);
 	}
 
-	private void validateId(final String id) {
+	private void validateId(String id) {
 		if (id == null || id.length() != 36) {
 			throw new APIRequestException(APIError.INVALID_REQUEST_DATA);
 		}

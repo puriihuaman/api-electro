@@ -1,25 +1,27 @@
 package purihuaman.dao;
 
-import org.springframework.data.domain.Pageable;
-import purihuaman.dto.UserDTO;
+import java.util.Optional;
 
-import java.util.List;
-import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
+import purihuaman.entity.UserEntity;
 
 public interface UserDAO {
-	List<UserDTO> getAllUsers(Pageable page);
+	Page<UserEntity> findAllUsers(Pageable page);
 
-	UserDTO getUserById(String userId);
+	Optional<UserEntity> findUserById(String userId);
 
-	List<UserDTO> filterUsers(Map<String, String> filters, Pageable page);
+	Page<UserEntity> filterUsers(Specification<UserEntity> spec, Pageable page);
 
-	UserDTO addUser(UserDTO user);
+	UserEntity createUser(UserEntity userEntity);
 
-	UserDTO updateUser(String userId, UserDTO user);
-	
-	Integer deleteUser(String userId);
+	UserEntity updateUser(UserEntity userEntity);
 
-	UserDTO authentication(String username, String password);
+	void deleteUser(String userId);
 
-	UserDTO getUserByUsername(String username);
+	Optional<UserEntity> authentication(String username, String password);
+
+	Optional<UserEntity> findUserByUsername(String username);
 }

@@ -22,8 +22,8 @@ ALTER TABLE Categories CHANGE COLUMN name_category category_name VARCHAR(30) NOT
 -- PRODUCTS
 
 -- The data dictionary for the 'new_product' field is:
--- 0 --> New product
--- 1 –-> product existing
+-- 0 --> New productEntity
+-- 1 –-> productEntity existing
 
 CREATE TABLE IF NOT EXISTS Products (
     product_id VARCHAR(40) NOT NULL,

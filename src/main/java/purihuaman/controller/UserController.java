@@ -2,16 +2,19 @@ package purihuaman.controller;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import purihuaman.dto.LoginRequestDTO;
 import purihuaman.dto.UserDTO;
 import purihuaman.enums.APIError;
 import purihuaman.enums.APISuccess;
 import purihuaman.exception.APIRequestException;
+import purihuaman.security.SecurityService;
+import purihuaman.security.TokenResponse;
 import purihuaman.service.UserService;
 import purihuaman.util.APIResponse;
 import purihuaman.util.APIResponseHandler;
@@ -21,75 +24,78 @@ import java.util.Map;
 
 @Validated
 @RestController
-@RequestMapping("/api/users")
-@RequiredArgsConstructor
+@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
-	private ResponseEntity<APIResponse> API_RESPONSE;
-
 	private final UserService userService;
+	private final SecurityService securityService;
 
-	@GetMapping(produces = "application/json")
-	public ResponseEntity<APIResponse> getAllUsers(
-		final @RequestParam Map<String, String> keywords
-	)
-	{
+	public UserController(UserService userService, SecurityService securityService) {
+		this.userService = userService;
+		this.securityService = securityService;
+	}
+
+	@GetMapping
+	public ResponseEntity<APIResponse> findAllUsers(@RequestParam Map<String, String> keywords) {
 		List<UserDTO> users;
 		short offset = keywords.containsKey("offset") ? Short.parseShort(keywords.get("offset")) : 0;
 		short limit = keywords.containsKey("limit") ? Short.parseShort(keywords.get("limit")) : 10;
 
 		Pageable page = PageRequest.of(offset, limit);
 
-		users = (keywords.isEmpty()) ? userService.getAllUsers(page) : userService.filterUsers(keywords, page);
+		users = (keywords.isEmpty()) ? userService.findAllUsers(page) : userService.filterUsers(keywords, page);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, users);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_RETRIEVED.setMessage("Recovered users");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_RETRIEVED, users);
 	}
 
-	@GetMapping(value = "/{id}", produces = "application/json")
-	public ResponseEntity<APIResponse> getUserById(final @PathVariable("id") String userId) {
-		validateId(userId);
+	@GetMapping("/{id}")
+	public ResponseEntity<APIResponse> findUserById(@PathVariable("id") String userId) {
+		this.validateId(userId);
 
-		UserDTO user = userService.getUserById(userId);
+		UserDTO user = userService.findUserById(userId);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_FETCHED_SUCCESSFULLY, user);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_FETCHED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_RETRIEVED.setMessage("Retrieved user");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_RETRIEVED, user);
 	}
 
-	@PostMapping(produces = "application/json")
-	public ResponseEntity<APIResponse> addUser(final @Valid @RequestBody UserDTO user) {
-		UserDTO savedUser = userService.addUser(user);
+	@PostMapping
+	public ResponseEntity<APIResponse> createUser(@Valid @RequestBody UserDTO user) {
+		UserDTO savedUser = userService.createUser(user);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED_SUCCESSFULLY, savedUser);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_CREATED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_CREATED.setMessage("Created user");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_CREATED, savedUser);
 	}
 
-	@PutMapping(value = "/{id}", produces = "application/json")
+	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<APIResponse> updateUser(
-		final @PathVariable("id") String userId,
-		final @Valid @RequestBody UserDTO user
-	)
-	{
-		validateId(userId);
+	public ResponseEntity<APIResponse> updateUser(@PathVariable("id") String userId, @Valid @RequestBody UserDTO user) {
+		this.validateId(userId);
 
 		UserDTO updatedUser = userService.updateUser(userId, user);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED_SUCCESSFULLY, updatedUser);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_UPDATED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_UPDATED.setMessage("Updated user");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_UPDATED, updatedUser);
 	}
 
-	@DeleteMapping(value = "/{id}", produces = "application/json")
+	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<APIResponse> deleteUser(final @PathVariable("id") String userId) {
-		validateId(userId);
+	public ResponseEntity<APIResponse> deleteUser(@PathVariable("id") String userId) {
+		this.validateId(userId);
 
 		userService.deleteUser(userId);
 
-		API_RESPONSE = APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_DELETED_SUCCESSFULLY, null);
-		return new ResponseEntity<>(API_RESPONSE.getBody(), APISuccess.RESOURCE_DELETED_SUCCESSFULLY.getStatus());
+		APISuccess.RESOURCE_REMOVED.setMessage("Deleted user");
+		return APIResponseHandler.handleApiResponse(APISuccess.RESOURCE_REMOVED, null);
 	}
 
-	private void validateId(final String id) {
+	@PostMapping("/login")
+	public ResponseEntity<TokenResponse> authenticate(@Valid @RequestBody LoginRequestDTO user) {
+		TokenResponse tokenResponse = securityService.login(user);
+
+		return ResponseEntity.ok(tokenResponse);
+	}
+
+	private void validateId(String id) {
 		if (id == null || id.length() != 36) {
 			throw new APIRequestException(APIError.INVALID_REQUEST_DATA);
 		}

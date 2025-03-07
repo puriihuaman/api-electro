@@ -1,23 +1,26 @@
 package purihuaman.dao;
 
-import org.springframework.data.domain.Pageable;
-import purihuaman.dto.ProductDTO;
-
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
+import purihuaman.entity.ProductEntity;
 
 public interface ProductDAO {
-	List<ProductDTO> getAllProducts(Pageable page);
+	Page<ProductEntity> findAllProducts(Pageable page);
 
-	ProductDTO getProductById(String productId);
+	Optional<ProductEntity> findProductById(String productId);
 
-	List<ProductDTO> searchProductByName(String productName);
+	List<ProductEntity> searchProductByName(String productName);
 
-	List<ProductDTO> filterProducts(Map<String, String> filters, Pageable page);
+	Page<ProductEntity> filterProducts(Specification<ProductEntity> spec, Pageable page);
 
-	ProductDTO addProduct(ProductDTO product);
+	ProductEntity createProduct(ProductEntity productEntity);
 
-	ProductDTO updateProduct(String productId, ProductDTO product);
+	ProductEntity updateProduct(ProductEntity productEntity);
 
-	Integer deleteProduct(String productId);
+	void deleteProduct(String productId);
 }
