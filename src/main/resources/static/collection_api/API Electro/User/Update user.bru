@@ -1,17 +1,13 @@
 meta {
   name: Update userEntity
   type: http
-  seq: 4
+  seq: 3
 }
 
 put {
-  url: {{API_BACKEND}}/users/06b94ddf-dd4a-44d6-bf8b-9973a9711ae8
+  url: {{API_BACKEND}}/users/a3a131f3-2991-4ffb-aeb2-e4df775ad8a6
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: eyJhbGciOiJIUzM4NCJ9.eyJmaXJzdE5hbWUiOiJDaWVsbyIsInN1YiI6IkZFUk4yMDI0IiwiaWF0IjoxNzM1MzQ0MTg4LCJleHAiOjE3MzU0MzA1ODh9.X4I2WORUFLS5xq12OwV6pZrOnxKDqdq1D6ng0BGzjRvvdBkix4QCbLrTTKXQ6shc
+  auth: inherit
 }
 
 body:json {
@@ -22,7 +18,7 @@ body:json {
     "username": "joa",
     "password": "J0a&_2025",
     "role": {
-      "roleName": "User"
+      "roleName": "Invited"
     }
   }
 }

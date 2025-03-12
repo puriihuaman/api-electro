@@ -32,7 +32,7 @@ public class ProductSpecification {
 
 				switch (key) {
 				case PRODUCT_NAME:
-					String searchTerm = "%" + value.toLowerCase() + "%";
+					String searchTerm = "%" + value.trim().toLowerCase() + "%";
 					predicates.add(cb.like(cb.lower(root.get(PRODUCT_NAME)), searchTerm));
 					break;
 				case MIN_PRICE:

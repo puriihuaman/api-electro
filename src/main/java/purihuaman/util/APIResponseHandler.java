@@ -4,8 +4,8 @@ import org.springframework.http.ResponseEntity;
 import purihuaman.enums.APISuccess;
 
 public class APIResponseHandler {
-	public static ResponseEntity<APIResponse> handleApiResponse(APISuccess apiSuccess, Object data) {
-		APIResponse apiResponse = new APIResponse(apiSuccess, data);
-		return new ResponseEntity<>(apiResponse, apiSuccess.getStatus());
+	public static ResponseEntity<APIResponseData> handleApiResponse(APISuccess apiSuccess, Object data) {
+		APIResponseData apiResponseData = new APIResponseData(apiSuccess, data);
+		return new ResponseEntity<>(apiResponseData, apiSuccess.getStatus());
 	}
 }

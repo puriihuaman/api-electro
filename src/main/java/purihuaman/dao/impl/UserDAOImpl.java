@@ -30,11 +30,6 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public Optional<UserEntity> authentication(String username, String password) {
-		return userRepository.findByUsernameAndPassword(username, password);
-	}
-
-	@Override
 	public Optional<UserEntity> findUserByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}

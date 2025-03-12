@@ -16,6 +16,10 @@ import purihuaman.enums.RoleType;
 public class SecurityConfig {
 	private final JwtRequestFilter jwtRequestFilter;
 
+	private static final String ROLE_ADMIN = RoleType.ADMIN.toString();
+	private static final String ROLE_USER = RoleType.USER.toString();
+	private static final String ROLE_INVITED = RoleType.INVITED.toString();
+
 	public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
 		this.jwtRequestFilter = jwtRequestFilter;
 	}
@@ -33,18 +37,23 @@ public class SecurityConfig {
 				"/swagger-resources/**"
 			).permitAll();
 
-			authRequest.requestMatchers(HttpMethod.POST, "/users/login").permitAll();
-			authRequest.requestMatchers("/users/**").hasAnyRole(RoleType.ADMIN.toString());
+			authRequest.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
 
-			authRequest.requestMatchers(HttpMethod.GET, "/categories/**").hasAnyRole("ADMIN", "USER", "INVITED");
-			authRequest.requestMatchers(HttpMethod.POST, "/categories/**").hasAnyRole("ADMIN", "USER");
-			authRequest.requestMatchers(HttpMethod.PUT, "/categories/**").hasAnyRole("ADMIN", "USER");
-			authRequest.requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN");
+			authRequest.requestMatchers("/users/**").hasAnyRole(ROLE_ADMIN);
 
-			authRequest.requestMatchers(HttpMethod.GET, "/products/**").hasAnyRole("ADMIN", "USER", "INVITED");
-			authRequest.requestMatchers(HttpMethod.POST, "/products/**").hasAnyRole("ADMIN", "USER");
-			authRequest.requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "USER");
-			authRequest.requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN");
+			authRequest.requestMatchers(HttpMethod.GET, "/categories/**").hasAnyRole(
+				ROLE_ADMIN,
+				ROLE_USER,
+				ROLE_INVITED
+			);
+			authRequest.requestMatchers(HttpMethod.POST, "/categories/**").hasAnyRole(ROLE_ADMIN, ROLE_USER);
+			authRequest.requestMatchers(HttpMethod.PUT, "/categories/**").hasAnyRole(ROLE_ADMIN, ROLE_USER);
+			authRequest.requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole(ROLE_ADMIN);
+
+			authRequest.requestMatchers(HttpMethod.GET, "/products/**").hasAnyRole(ROLE_ADMIN, ROLE_USER, ROLE_INVITED);
+			authRequest.requestMatchers(HttpMethod.POST, "/products/**").hasAnyRole(ROLE_ADMIN, ROLE_USER);
+			authRequest.requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole(ROLE_ADMIN, ROLE_USER);
+			authRequest.requestMatchers(HttpMethod.DELETE, "/products/**").hasRole(ROLE_ADMIN);
 
 			authRequest.anyRequest().authenticated();
 		});

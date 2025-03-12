@@ -5,15 +5,15 @@ meta {
 }
 
 get {
-  url: {{API_BACKEND}}/users
+  url: {{API_BACKEND}}/users?email=anonymous@gmail.com
   body: none
   auth: inherit
 }
 
 params:query {
+  email: anonymous@gmail.com
   ~limit: 2
   ~offset: 0
   ~first_name: Cielo
-  ~email: joa@gmail.com
   ~username: GERA2024
 }

@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 @CrossOrigin
 @SpringBootApplication
-public class ApiElectroApplication {    
-
+public class ApiElectroApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApiElectroApplication.class, args);
 	}

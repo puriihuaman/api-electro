@@ -7,15 +7,11 @@ meta {
 post {
   url: {{API_BACKEND}}/categories
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJKb2EiLCJsYXN0TmFtZSI6IkdlcmFsZGluZSIsInJvbGUiOiJVU0VSIiwic3ViIjoiam9hIiwiaWF0IjoxNzQxMjc5MjQ1LCJleHAiOjE3NDEzNjU2NDV9.d5WUqOyO5ndUMUH2Tb4MyNM8v3fn2uJnfIo2Nn0UiXU
+  auth: inherit
 }
 
 body:json {
   {
-    "categoryName": "Testingdos"
+    "categoryName": ""
   }
 }

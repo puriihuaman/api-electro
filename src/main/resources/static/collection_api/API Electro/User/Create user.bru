@@ -1,28 +1,25 @@
 meta {
   name: Create userEntity
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
   url: {{API_BACKEND}}/users
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJhZG1pbiIsImxhc3ROYW1lIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTI3NzU4OSwiZXhwIjoxNzQxMzYzOTg5fQ.7EQTO61VUweo_3ZONxQWeUCVXzzkd5eXW1U9KlqBEgo
+  auth: none
 }
 
 body:json {
   {
-    "firstName": "Joa",
-    "lastName": "Geraldine",
-    "email": "Joa@gmail.com",
-    "username": "Joa",
-    "password": "J0a&_2025",
+    "firstName": "Hailee",
+    "lastName": "Steinfeld",
+    "email": "hailee@gmail.com",
+    "username": "steinfeld",
+    "password": "H4iL33&_2025",
     "role": {
-      "roleName": "User"
+      "roleName": "Admin"
     }
   }
+  
 }

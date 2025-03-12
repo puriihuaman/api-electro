@@ -19,7 +19,5 @@ public interface UserService {
 
 	void deleteUser(String userId);
 
-	UserDTO authentication(String username, String password);
-
 	UserDTO findUserByUsername(String username);
 }

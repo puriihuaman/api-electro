@@ -1,38 +1,61 @@
 package purihuaman;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import purihuaman.dao.repository.UserRepository;
-import purihuaman.entity.UserEntity;
+import purihuaman.dao.RoleDAO;
+import purihuaman.dto.UserDTO;
+import purihuaman.entity.RoleEntity;
+import purihuaman.enums.RoleType;
+import purihuaman.service.UserService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @SpringBootTest
 class ApiElectroApplicationTests {
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 
-	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	@Autowired
+	private RoleDAO roleDao;
+
+	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@Test
 	void contextLoads() {
 	}
 
 	@Test
-	void addUser() {
-		UserEntity userEntity = new UserEntity();
+	void createUser() {
+		try {
+			Optional<RoleEntity> optionalRole = roleDao.findRoleByRoleName(RoleType.ADMIN);
 
-		userEntity.setUserId(UUID.randomUUID().toString());
-		userEntity.setFirstName("Spring");
-		userEntity.setLastName("Spring Boot");
-		userEntity.setEmail("spring@gmail.com");
-		userEntity.setPassword(encoder.encode("SPR¡NG_boot_2025"));
+			if (optionalRole.isPresent()) {
+				System.out.println("Creating admin user ....");
+				String encodedPassword = passwordEncoder.encode("AdM¡N&20_25");
 
-		UserEntity savedUserEntity = userRepository.save(userEntity);
-		Assertions.assertNotNull(savedUserEntity);
+				UserDTO
+					admin =
+					UserDTO
+						.builder()
+						.firstName("admin")
+						.lastName("admin")
+						.email("anonymous@gmail.com")
+						.username("admin")
+						.password(encodedPassword)
+						.role(optionalRole.get())
+						.build();
+				admin.setId(UUID.randomUUID().toString());
+
+				UserDTO savedUser = userService.createUser(admin);
+				System.out.println("User created ....: " + savedUser.getUsername());
+			}
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 }
