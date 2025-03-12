@@ -18,8 +18,7 @@ public class SecurityService {
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
 
-	public SecurityService(AuthenticationManager authManager, UserService userService, JwtUtil jwtUtil)
-	{
+	public SecurityService(AuthenticationManager authManager, UserService userService, JwtUtil jwtUtil) {
 		this.authManager = authManager;
 		this.userService = userService;
 		this.jwtUtil = jwtUtil;
@@ -28,20 +27,15 @@ public class SecurityService {
 	// TODO: CHECK
 	public TokenResponse login(LoginRequestDTO loginRequest) {
 		try {
-			Authentication
-				auth =
-				authManager.authenticate(new UsernamePasswordAuthenticationToken(
-					loginRequest.getUsername(),
-				                                                                 loginRequest.getPassword()
-				));
-			System.out.println("Authentication token: " + auth.isAuthenticated());
+			UsernamePasswordAuthenticationToken
+				authRequest =
+				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+			Authentication auth = authManager.authenticate(authRequest);
+
 			UserDetails userDetails = (UserDetails) auth.getPrincipal();
 			UserDTO existingUser = userService.findUserByUsername(userDetails.getUsername());
 
-			System.out.println("User found: " + existingUser);
-
 			String token = jwtUtil.generateToken(existingUser);
-			System.out.println("TOKEN: " + token);
 
 			return new TokenResponse(token, existingUser.getUsername(), existingUser.getRole().getRoleName());
 		} catch (BadCredentialsException ex) {
@@ -49,6 +43,5 @@ public class SecurityService {
 		} catch (Exception ex) {
 			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 }

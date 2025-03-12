@@ -30,15 +30,17 @@ public class AppConfig {
 		this.userDAO = userDAO;
 	}
 
-	// TODO: CHECK
 	@Bean
 	public UserDetailsService userDetailsService() {
 		final String ROLE_PREFIX = "ROLE_";
+
 		return (username) -> {
 			Optional<UserEntity> existingUser = userDAO.findUserByUsername(username.toLowerCase());
+
 			if (existingUser.isEmpty()) {
 				throw new APIRequestException(APIError.ENDPOINT_NOT_FOUND);
 			}
+
 			UserDTO userDTO = userMapper.toUserDTO(existingUser.get());
 			String roleName = ROLE_PREFIX + userDTO.getRole().getRoleName();
 
@@ -53,7 +55,6 @@ public class AppConfig {
 		};
 	}
 
-	// TODO: CHECK
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
@@ -63,13 +64,11 @@ public class AppConfig {
 		return daoAuthProvider;
 	}
 
-	// TODO: CHECK
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
 	}
 
-	// TODO: CHECK
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();

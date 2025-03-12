@@ -22,11 +22,6 @@ public class RoleDAOImpl implements RoleDAO {
 	}
 
 	@Override
-	public Optional<RoleEntity> findRoleById(String roleId) {
-		return roleRepository.findById(roleId);
-	}
-
-	@Override
 	public RoleEntity createRole(RoleEntity role) {
 		return roleRepository.save(role);
 	}

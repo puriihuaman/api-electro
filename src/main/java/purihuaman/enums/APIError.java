@@ -14,7 +14,7 @@ public enum APIError {
 	                     "Request data contains invalid values or incorrect format."
 	),
 	INVALID_CREDENTIALS(
-		HttpStatus.BAD_REQUEST,
+		HttpStatus.UNAUTHORIZED,
 		"Invalid Credentials",
 		"Incorrect username or password. Please try again with the correct credentials."
 	),
@@ -25,7 +25,7 @@ public enum APIError {
 	UNAUTHORIZED_ACCESS(
 		HttpStatus.UNAUTHORIZED,
 		"Unauthorized Access",
-		"Authentication is required or has failed or has not yet been provided"
+		"Authentication is required or has failed or has not yet been provided."
 	),
 	FORBIDDEN_ACTION(
 		HttpStatus.FORBIDDEN,

@@ -9,7 +9,6 @@ import purihuaman.dao.ProductDAO;
 import purihuaman.dao.repository.ProductRepository;
 import purihuaman.entity.ProductEntity;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,11 +27,6 @@ public class ProductDAOImpl implements ProductDAO {
 	@Override
 	public Optional<ProductEntity> findProductById(String productId) {
 		return productRepository.findById(productId);
-	}
-
-	@Override
-	public List<ProductEntity> searchProductByName(String productName) {
-		return productRepository.searchProductByName(productName);
 	}
 
 	@Override

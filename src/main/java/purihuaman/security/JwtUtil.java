@@ -60,18 +60,8 @@ public class JwtUtil {
 	}
 
 	public String buildToken(Map<String, Object> claims, String subject) {
-		String
-			token =
-			Jwts
-				.builder()
-				.claims(claims)
-				.subject(subject)
-				.issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis() + TIME_EXPIRATION))
-				.signWith(this.getKey(), Jwts.SIG.HS256)
-				.compact();
-		System.out.println("token: " + token);
-		return token;
+		return Jwts.builder().claims(claims).subject(subject).issuedAt(new Date(System.currentTimeMillis())).expiration(
+			new Date(System.currentTimeMillis() + TIME_EXPIRATION)).signWith(this.getKey(), Jwts.SIG.HS256).compact();
 	}
 
 	public boolean validateToken(String token, UserDetails userDetails) {

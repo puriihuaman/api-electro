@@ -43,6 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
 			Optional<CategoryEntity> optionalCategory = categoryDao.findCategoryById(categoryId);
 			if (optionalCategory.isEmpty()) {
 				APIError.RECORD_NOT_FOUND.setMessage("Category not found");
+				APIError.RECORD_NOT_FOUND.setDescription(
+					"The category you are trying to access does not exist in our system. Verify the provided category ID and try again");
 				throw new APIRequestException(APIError.RECORD_NOT_FOUND);
 			}
 

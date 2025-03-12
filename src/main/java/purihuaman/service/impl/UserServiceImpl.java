@@ -7,17 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import purihuaman.dao.RoleDAO;
 import purihuaman.dao.UserDAO;
 import purihuaman.dto.RoleDTO;
 import purihuaman.dto.UserDTO;
-import purihuaman.entity.RoleEntity;
 import purihuaman.entity.UserEntity;
 import purihuaman.enums.APIError;
 import purihuaman.enums.RoleType;
 import purihuaman.exception.APIRequestException;
 import purihuaman.mapper.RoleMapper;
 import purihuaman.mapper.UserMapper;
+import purihuaman.service.RoleService;
 import purihuaman.service.UserService;
 import purihuaman.util.UserSpecification;
 
@@ -29,21 +28,21 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
 	private final UserDAO userDao;
-	private final RoleDAO roleDao;
+	private final RoleService roleService;
 	private final UserMapper userMapper;
 	private final RoleMapper roleMapper;
 	private final PasswordEncoder passwordEncoder;
 
 	public UserServiceImpl(
 		UserDAO userDao,
-		RoleDAO roleDao,
+		RoleService roleService,
 		UserMapper userMapper,
 		RoleMapper roleMapper,
 		PasswordEncoder passwordEncoder
 	)
 	{
 		this.userDao = userDao;
-		this.roleDao = roleDao;
+		this.roleService = roleService;
 		this.userMapper = userMapper;
 		this.roleMapper = roleMapper;
 		this.passwordEncoder = passwordEncoder;
@@ -66,7 +65,10 @@ public class UserServiceImpl implements UserService {
 			Optional<UserEntity> existingUser = userDao.findUserById(userId);
 
 			if (existingUser.isEmpty()) {
-				throw new APIRequestException(APIError.ENDPOINT_NOT_FOUND);
+				APIError.ENDPOINT_NOT_FOUND.setMessage("User not found");
+				APIError.ENDPOINT_NOT_FOUND.setDescription(
+					"The user you are trying to access does not exist in our system. Please check the user ID provided and try again.");
+				throw new APIRequestException(APIError.RECORD_NOT_FOUND);
 			}
 
 			return userMapper.toUserDTO(existingUser.get());
@@ -96,12 +98,13 @@ public class UserServiceImpl implements UserService {
 	public UserDTO createUser(UserDTO user) {
 		try {
 			RoleType roleName = user.getRole().getRoleName();
-			RoleEntity role = this.findRoleByRoleName(roleName);
+			RoleDTO existingRole = roleService.findRoleByRoleName(roleName);
 
 			user.setId(UUID.randomUUID().toString());
+			user.setEmail(user.getEmail().trim().toLowerCase());
 			user.setUsername(user.getUsername().trim().toLowerCase());
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			user.setRole(role);
+			user.setRole(roleMapper.toRoleModel(existingRole));
 
 			UserEntity savedUser = userDao.createUser(userMapper.toUserModel(user));
 			return userMapper.toUserDTO(savedUser);
@@ -124,16 +127,17 @@ public class UserServiceImpl implements UserService {
 	public UserDTO updateUser(String userId, UserDTO user) {
 		try {
 			RoleType roleName = user.getRole().getRoleName();
-			RoleEntity existingRole = this.findRoleByRoleName(roleName);
+			RoleDTO existingRole = roleService.findRoleByRoleName(roleName);
+
 			UserEntity existingUser = userMapper.toUserModel(this.findUserById(userId));
 
 			existingUser.setFirstName(user.getFirstName());
 			existingUser.setLastName(user.getLastName());
-			existingUser.setEmail(user.getEmail());
+			existingUser.setEmail(user.getEmail().trim().toLowerCase());
 			existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
 			existingUser.setPassword(user.getPassword());
-			existingUser.setUsername(user.getUsername());
-			existingUser.setRole(existingRole);
+			existingUser.setUsername(user.getUsername().trim().toLowerCase());
+			existingUser.setRole(roleMapper.toRoleModel(existingRole));
 
 			return userMapper.toUserDTO(userDao.updateUser(existingUser));
 		} catch (APIRequestException ex) {
@@ -173,26 +177,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDTO authentication(String username, String password) {
-		System.out.println("user: " + username);
-		try {
-			Optional<UserEntity> optionalUser = userDao.authentication(username, password);
-
-			if (optionalUser.isEmpty()) {
-				throw new APIRequestException(APIError.ENDPOINT_NOT_FOUND);
-			}
-
-			return userMapper.toUserDTO(optionalUser.get());
-		} catch (APIRequestException ex) {
-			throw ex;
-		} catch (DataAccessException ex) {
-			throw new APIRequestException(APIError.DATABASE_ERROR);
-		} catch (Exception ex) {
-			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@Override
 	public UserDTO findUserByUsername(String username) {
 		try {
 			String usernameToSearch = username.trim().toLowerCase();
@@ -211,18 +195,5 @@ public class UserServiceImpl implements UserService {
 		} catch (Exception ex) {
 			throw new APIRequestException(APIError.INTERNAL_SERVER_ERROR);
 		}
-
-	}
-
-	public RoleEntity createRole(RoleType roleName) {
-		RoleDTO newRole = RoleDTO.builder().id(UUID.randomUUID().toString()).roleName(roleName).build();
-
-		return roleDao.createRole(roleMapper.toRoleModel(newRole));
-	}
-
-	public RoleEntity findRoleByRoleName(RoleType roleName) {
-		Optional<RoleEntity> existingRole = roleDao.findRoleByRoleName(roleName);
-
-		return existingRole.orElseGet(() -> this.createRole(roleName));
 	}
 }

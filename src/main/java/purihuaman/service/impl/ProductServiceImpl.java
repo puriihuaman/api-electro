@@ -63,6 +63,8 @@ public class ProductServiceImpl implements ProductService {
 
 			if (optionalProduct.isEmpty()) {
 				APIError.RECORD_NOT_FOUND.setMessage("Product not found");
+				APIError.RECORD_NOT_FOUND.setDescription(
+					"The product you are trying to access does not exist in our system. Please check the product ID provided and try again.");
 				throw new APIRequestException(APIError.RECORD_NOT_FOUND);
 			}
 
